@@ -1,0 +1,179 @@
+{% extends error|yesno:"garments/base_visitor.html,garments/base.html" %}
+{% load static %}
+
+
+{% block title %} Item Store: DGarments {% endblock %}
+
+{% block head %} 
+	<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+	<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+{% endblock %}
+
+{% block SecHeader %} 
+	<div class='jumbotron header' style='color:white; background-color: rgb(0,0,0);border: 0;margin: 0;padding: 1% 5% 1% 5%;'>
+		<!-- <div class=""> -->
+		<h2>Happy Shopping</h2>
+		<small>Please feel free to use all of our features and offers.</small>
+		<!-- </div> -->
+    </div>
+{% endblock %}    
+
+
+
+<!-- header -->
+{% block Name %} {{ first_name }} {% endblock %}
+
+
+{% block cart_descriptor %}
+[
+	{% if cart_items %}
+		{{ cart_items|length }} 
+	{% else %}
+		0
+	{% endif %}
+]
+{% endblock %}
+
+
+{% block nav_options %}
+	{% if admin == "True" %}
+		<li><a href="{% url 'garments:admin_home' %}" >Administrator</a></li>
+	{% endif %}
+{% endblock %}
+<!-- //header -->
+
+
+
+
+
+{% block style %} 
+	#main{
+		display: -webkit-flex; /* Safari */
+    	-webkit-flex-wrap: wrap; /* Safari 6.1+ */
+    	display: flex;
+    	flex-wrap: wrap;
+    }
+
+    #main div {
+	    display: inline-block;
+    	width: 200px;
+    	height: 350px;
+    	margin-top:20px;
+    	border: 2px blue;
+	}
+{% endblock %}
+
+
+{% block body %}
+	<br><br>
+	<div class='row row-eq-height' style = ''>
+		<div class='col-sm-3' style='background-color:white ;border: 1px solid black;padding-left: 5%;'>
+			<form id='filter_form' onsubmit="return validateForm()" class="form-horizontal" action="{% url 'garments:items' %}" method='post'>
+				{% csrf_token %}
+				<input type='submit' class='btn btn-primary' value='Filter' style='margin-top: 20px;'>
+				<br>
+
+				<h3>Sort By:</h3>
+				<!-- <input type='hidden' name='sortby' value='all'> -->
+			    <label for='s2'><input id='s2' type="radio" name="sortby" value="Price" checked> Price</label><br>
+			    <label for='s3'><input id='s3' type="radio" name="sortby" value="Quantity"> Quantity</label><br>
+
+			    {% if brands %}
+				<input type='hidden' name='brand' value='all'>
+					<h3>Select Brand:</h3>
+					{% for b in brands %}
+					<label for='b-{{ b }}'><input id='b-{{ b }}' type='checkbox' name='brand' value='{{ b }}'/>&nbsp;{{ b }}<br>
+					{% endfor %}
+				{% endif %}
+
+				{% if category %}
+				<input type='hidden' name='category' value='all'>
+					<h3>Select Category:</h3>
+					{% for c in category %}
+					<label for='c-{{ c }}'><input id='c-{{ c }}' type='checkbox' name='category' value='{{ c }}'/>&nbsp;{{ c }}<br/>
+					{% endfor %}
+				{% endif %}
+				
+				<br><br><br>
+				
+				<label for="amount">Price range:</label>
+				<script>
+					  $( function() {
+					    $( "#slider-range" ).slider({
+					      range: true,
+					      min: 0,
+					      max: 10000,
+					      values: [0 , 10000 ],
+					      slide: function( event, ui ) {
+					        $( "#amount" ).val( ui.values[ 0 ] + " Rs. - " + ui.values[ 1 ] +' Rs.' );
+					      }
+					    });
+					    $( "#amount" ).val($( "#slider-range" ).slider( "values", 0 ) +
+					      " Rs. - " + $( "#slider-range" ).slider( "values", 1 ) + ' Rs.' 
+					    );
+					  });
+				</script>
+				<input type="text" id="amount" name='price_range' readonly style="border:0; background-color:none; color:#f6931f; font-weight:bold;"/>
+				<div id="slider-range"></div>
+
+				<br><br><br>
+			</form>
+		</div>
+
+
+
+		<!-- Items Available -->
+		<div class='col-sm-9' >
+			<div class='header' style='background-color: transparent;'>
+				<h3>Items Available:</h3>
+			</div>
+			<div>
+				<strong>Filters</strong><br>
+				<small style='color:red;'>
+					<strong>Brand</strong>: {{ display_brand_string }}<br>
+					<strong>Category</strong>: {{ display_category_string }}<br>
+					<strong>Price Range</strong>: {{ price_range }}<br>
+				</small>
+			</div>
+{% if item_categories|length > 0 %}
+			<br>	
+			<div id='main'>
+
+			{% for item_obj in item_categories %}
+				<div style='background-color: white; border:2px blue;margin-left: 20px;'>
+					<div style='float:top;'>
+						{% if item_obj.photo %}
+						<img class="img-fluid" style='max-width: 100%; height: auto;' src="{{ item_obj.photo.url }}">
+						<p>{{ item_obj.photo.url }}</p>
+						{% endif %}
+						<div class='text-center'>
+							<a href="{% url 'garments:item_detail' item_obj.id %}"><p style='color:Red;font-weight:bold;'>{{ item_obj.type_of_item }}</p></a>
+							{% if item_obj.size %}
+								<p>Size: {{ item_obj.size }}</p>
+							{% endif %}
+							<p>{{ item_obj.mrp }} Rs.</p><br>
+							<form action='{% url "garments:add_to_cart" item_obj.id %}' method='post'>
+								{% csrf_token %}
+								Quantity: <input type="text" name="quantity" value="1" size=5><br><br>
+								<input class='btn btn-primary' type="submit" value="Add to cart">
+							</form>
+						</div>
+					</div>	
+				</div>
+			{% endfor %}
+
+			</div>
+{% else %}
+	<small style='color:red;'>
+		<br><br>
+		There are no items to display
+	</small>
+{% endif %}
+			<!-- //Items Available -->
+			<br><br>
+		</div>
+	</div>
+{% endblock %}
+
+

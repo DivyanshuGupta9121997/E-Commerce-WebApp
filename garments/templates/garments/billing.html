@@ -1,0 +1,214 @@
+{% extends error_message|yesno:"garments/base_visitor.html,garments/base.html" %}
+
+{% load static %}
+{% block title %} Billing: DGarments {% endblock %}
+
+
+
+
+{% block style %} 
+	table {
+	    border-collapse: collapse;
+	    width: 100%;
+	}
+
+	th, td {
+	    text-align: left;
+	    padding: 8px;
+	}
+	th {
+	    background-color: rgb(0,0,0);
+	    color: white;
+	}
+	tr:nth-child(even){background-color: #f2f2f2}
+
+	.alert {
+	    padding: 20px;
+	    background-color: #f44336;
+	    color: white;
+	    opacity: 1;
+	    transition: opacity 0.6s;
+	    margin-bottom: 15px;
+	}
+
+	.closebtn {
+	    margin-left: 15px;
+	    color: white;
+	    font-weight: bold;
+	    float: right;
+	    font-size: 22px;
+	    line-height: 20px;
+	    cursor: pointer;
+	    transition: 0.3s;
+	}
+
+	.closebtn:hover {
+	    color: black;
+	}
+{% endblock %}
+
+
+
+
+
+{% block SecHeader %} 
+	<div class='jumbotron header' style='color:white; background-color: #000000;border: 0;margin: 0;padding: 1% 5% 1% 5%;'>
+		<!-- <div class=""> -->
+		<img alt = 'Happy shopping' src='{% static "garments/images/h_shopping.jpeg" %}' width=90 height=90 style='float:left;'>
+		<h2>&nbsp&nbspSee you soon</h2>
+		<small>&nbsp&nbsp&nbsp&nbspPlease check the bill and proceed to pay.</small>
+		<!-- </div> -->
+	</div>
+{% endblock %}
+
+
+
+
+<!-- header -->
+{% block Name %} {{ first_name }} {% endblock %}
+
+
+{% block cart_descriptor %}
+[
+	{% if cart_items %}
+		{{ cart_items|length }} 
+	{% else %}
+		0
+	{% endif %}
+]
+{% endblock %}
+
+
+{% block nav_options %}
+	{% if admin == "True" %}
+		<li><a href="{% url 'garments:admin_home' %}" >Administrator</a></li>
+	{% endif %}
+{% endblock %}
+<!-- //header -->
+
+
+
+
+{% block body %} 
+
+{% if error_message %}
+<div class="alert">
+  <span class="closebtn">&times;</span>  
+  <strong>Error!</strong> {{ error_message }}
+</div>
+
+<script>
+	var close = document.getElementsByClassName("closebtn");
+	var i;
+
+	for (i = 0; i < close.length; i++) {
+	    close[i].onclick = function(){
+	        var div = this.parentElement;
+	        div.style.opacity = "0";
+	        setTimeout(function(){ div.style.display = "none"; }, 600);
+	    }
+	}
+</script>
+{% else %}
+	<div class='row'>
+		<div class="col-md-1"> </div>
+		<div class="col-md-10">
+			<div class="thumbnail"  style='margin-top:1%;margin-bottom:5%;padding:5%;box-shadow: 0 0 1px blue;width:103%;'>
+				<div style='text-align:center;'>
+					<h2 style='color:rgb(0,100,180);'>DHAKAD GARMENTS</h2><br>
+					<h4><u>Order Details</u></h4>
+				</div>
+				<div style="float:right;"><b>Date</b>: {% now "jS F Y H:i" %}  <!-- 09/09/2017 --></div>
+				<div style="float:left;"><b>Name</b>: {{ full_name }} </div>
+				<table style='text-align: center;margin-top:5%; width:100%'>
+				    <tr>
+				    	<th>S.no</th>
+				    	<th>Brand</th>
+				    	<th>Item (Size)</th>
+				    	<th>Quantity</th>
+				    	<th>Item Price</th>
+				    	<th>Total price</th>
+				    </tr>
+				    {% for c in cart_items %}
+				    <tr>
+				    	<td>{{ forloop.counter }}</td>
+				    	<td>{{ c.brand }}</td>
+				    	<td>{{ c.type_of_item }} ({{ c.size }})</td>
+				    	<td>{{ c.quantity }}</td>
+				    	<td>{{ c.mrp }}</td>
+				    	<td>{% widthratio c.mrp 1 c.quantity %}</td>
+				    </tr>
+				    {% endfor %}
+				    <tr>
+				    	<th></th>
+				    	<th>Other Charges</th>
+				    	<th></th>
+				    	<th></th>
+				    	<th></th>
+				    	<th>Amount</th>
+				    </tr>
+				    <tr>
+				    	<td></td>
+				    	<td>Delivery Charges</td>
+				    	<td></td>
+				    	<td></td>
+				    	<td></td>
+				    	<td>{{ delivery_charge }}</td>
+				    </tr>
+				    <tr>
+				    	<td></td>
+				    	<td>tax</td>
+				    	<td></td>
+				    	<td></td>
+				    	<td></td>
+				    	<td>{{ tax }}</td>
+				    </tr>
+				    <tr>
+				    	<td></td>
+				    	<td>Discount</td>
+				    	<td></td>
+				    	<td></td>
+				    	<td></td>
+				    	<td>{{ discount }}</td>
+				    </tr>				    
+				    <tr style = 'background-color: #2fdab8;'>
+				    	<td></td>
+				    	<td></td>
+				    	<td></td>
+				    	<td></td>
+				    	<td><b>Total</b></td>
+				    	<td>{{ total }}</td>
+				    </tr>
+				</table>
+				<br><br>
+				<div style='text-align:center;'>
+					<h4><u>Delivery Details</u></h4>
+				</div>
+				<form action="{% url 'garments:place_order' %}" method='post' >
+				{% csrf_token %}
+				<div class='container'>
+					<br>
+					<div class="form-group">
+						<label class="control-label col-sm-2" for="username">Reference Phone Number: </label>
+						<div class="col-sm-10">
+							<input class="form-control" name='phone_no' value='{{ user_phone_no }}' placeholder='phone no. of the receiver'><br>
+						</div>
+						<label class="control-label col-sm-2" for="username">Reference Address: </label>
+						<div class="col-sm-10">
+							<input class="form-control" name='address' value='{{ user_address }}' placeholder='write the full address where you want to receive the order'>
+						</div>
+						<div style='text-align:center;'>
+							<input type='submit' class='btn btn-primary' value='Confirm Order' style='margin-top: 20px;'>
+						</div>
+					</div>
+				</div>
+				</form>
+			</div>
+		</div>
+		<div class="col-md-1"> </div>
+
+	</div>
+{% endif %}
+{% endblock %}
+
+

@@ -1,0 +1,167 @@
+{% extends error|yesno:"garments/base_visitor.html,garments/base.html" %}
+{% load static %}
+
+
+{% block title %} Home: DGarments {% endblock %}
+{% block SecHeader %} {% endblock %}
+
+{% block style %} 
+	#main{
+		display: -webkit-flex; /* Safari */
+    	-webkit-flex-wrap: wrap; /* Safari 6.1+ */
+    	display: flex;
+    	flex-wrap: wrap;
+    }
+
+    #main div {
+	    display: inline-block;
+    	width: 200px;
+    	height: 350px;
+    	margin-top:20px;
+    	border: 2px blue;
+	}
+	.alert {
+	    padding: 20px;
+	    background-color: #f44336;
+	    color: white;
+	    opacity: 1;
+	    transition: opacity 0.6s;
+	    margin-bottom: 15px;
+	}
+
+	.closebtn {
+	    margin-left: 15px;
+	    color: white;
+	    font-weight: bold;
+	    float: right;
+	    font-size: 22px;
+	    line-height: 20px;
+	    cursor: pointer;
+	    transition: 0.3s;
+	}
+
+	.closebtn:hover {
+	    color: black;
+	}
+{% endblock %}
+
+
+<!-- header -->
+{% block Name %} {{ first_name }} {% endblock %}
+
+{% block cart_descriptor %}
+[
+	{% if cart_items %}
+		{{ cart_items|length }} 
+	{% else %}
+		0
+	{% endif %}
+]
+{% endblock %}
+
+
+{% block nav_options %}
+	{% if admin == "True" %}
+		<li><a href="{% url 'garments:admin_home' %}" >Administrator</a></li>
+	{% endif %}
+{% endblock %}
+<!-- //header -->
+
+
+
+
+
+
+
+{% block body %} 
+
+<!-- Error Message -->
+{% if error_message %}
+	<div class="alert">
+	  <span class="closebtn">&times;</span>  
+	  <strong>Error!</strong> {{ error_message }}
+	</div>
+
+	<script>
+		var close = document.getElementsByClassName("closebtn");
+		var i;
+
+		for (i = 0; i < close.length; i++) {
+		    close[i].onclick = function(){
+		        var div = this.parentElement;
+		        div.style.opacity = "0";
+		        setTimeout(function(){ div.style.display = "none"; }, 600);
+		    }
+		}
+	</script>
+{% endif %}
+<!-- //Error Message -->
+
+
+<div>
+	<div class='row'>
+		<div class="col-md-1"> </div>
+		<div class="col-md-10">
+			<div class="thumbnail"  style='margin-top:1%;margin-bottom:5%;padding:5%;box-shadow: 0 0 1px blue;width:103%;'>
+					
+			<div style='text-align:center;'>
+				<h2 style='color:rgb(0,100,180);'>DATABASE ACCESS</h2>
+			</div>
+
+			<div class='row'>
+				<div style='text-align:center;'>
+					<h3> Items</h3><br>
+					<div class='col-md-4'>
+						<a href='{% url "garments:view_table" 1 %}' class='btn btn-primary' style='float:right;'>View</a>
+					</div>
+					<div class='col-md-4'>
+						<a href='{% url "garments:insert_item_page" %}' class='btn btn-primary'> Add/ Modify </a>
+					</div>
+					<div class='col-md-4'>
+						<a href='{% url "garments:delete_item_page" %}' class='btn btn-primary' style='float:left;'>Delete</a>
+					</div>
+				</div>	
+			</div><hr>
+
+			<div class='row'>
+				<div style='text-align:center;'>
+					<h3> Orders</h3><br>
+					<div class='col-md-4'>
+						<a href='{% url "garments:view_table" 5 %}' class='btn btn-primary' style='float:right;'>View<br>And mark Delivered</a>
+					</div>
+					<div class='col-md-4'>
+						<a href='{% url "garments:modify_order_page" %}' class='btn btn-primary'>Add</a>
+					</div>
+					<div class='col-md-4'>
+						<a href='{% url "garments:delete_order_page" %}' class='btn btn-primary' style='float:left;'>Delete</a>
+					</div>
+				</div>
+			</div><hr>
+
+			<div class='row'>
+				<div style='text-align:center;'>
+					<h3> Users</h3><br>
+					<div class='col-md-12'>
+						<a href='{% url "garments:view_table" 2 %}' class='btn btn-primary' >View</a>
+					</div>
+				</div>
+			</div><hr>
+
+			<div class='row'>
+				<div style='text-align:center;'>
+					<h3> Transactions</h3><br>
+					<div class='col-md-12'>
+						<a href='{% url "garments:view_table" 3 %}' class='btn btn-primary'>View</a>
+					</div>
+				</div>
+			</div><hr>
+			
+		
+			</div>
+		</div>
+	</div>
+</div>
+
+{% endblock %}
+
+

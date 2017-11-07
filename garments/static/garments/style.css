@@ -1,0 +1,142 @@
+body {
+    background: white url("images/background.png");
+}
+
+.thumbnail:hover{
+    box-shadow: 0 0 1px blue;
+    width:103%;
+}
+
+h3.wthree_text_info {
+    font-size: 2.5em;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: 2px;
+    color: #000;
+    margin-bottom: 1em;
+    text-transform: uppercase;
+}
+h3.wthree_text_info span{
+  font-weight:300;
+}
+
+/*-- table --*/
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th, td {
+    text-align: left;
+    padding: 8px;
+}
+th {
+    background-color: rgb(0,0,0);
+    color: white;
+}
+tr:nth-child(even){background-color: #f2f2f2}
+/*-- //table --*/
+
+/*-- header --*/
+.header {
+    background: #000;
+    border-bottom: 1px solid #464444;
+}
+.header ul{
+    margin-bottom: 0;
+}
+.header ul li {
+    display: inline-block;
+    width: 24.5%;
+    text-align: center;
+    color: #fff;
+    font-size: 13px;
+    padding: 7px 0;
+    letter-spacing: 1px;
+    border-right: 1px solid #464444;
+}
+.header ul li a {
+    color: #fff;
+    text-decoration: none;
+}
+.header ul li i {
+    margin-right: 12px;
+    top: 2px;
+    color: #2fdab8;
+}
+.header-right {
+    text-align: right;
+}
+.header-left{
+    text-align: left;	
+}
+.header-bot_inner_wthreeinfo_header_mid {
+    margin: 0 auto;
+    width: 90%;
+}
+/*-- //header --*/
+
+
+/*-- navbar --*/
+.navbar {
+    border-radius: 0;
+}
+.navbar-brand {
+    font-family: 'Satisfy', cursive;
+}
+/*-- //navbar --*/
+
+
+/*-- buttons -- */
+#cart_btn{
+    color:#2fdab8;
+    background:none;
+    border-width: 0px;
+}
+
+#cart_btn:hover{
+    background:none;
+    color: #fff;
+    border-width: 0px;
+}
+/*-- //buttons -- */
+
+/*-- carousel -- */
+.carousel-inner > .item > img,
+.carousel-inner > .item > a > img {
+    width: 70%;
+    margin: auto;
+}
+.news-slider .carousel .carousel-inner .entry-thumbnail:before {
+    background: none;
+}
+/*-- //carousel -- */
+
+
+/*-- Alert --*/
+.alert {
+    padding: 20px;
+    background-color: #f44336;
+    color: white;
+    opacity: 1;
+    transition: opacity 0.6s;
+    margin-bottom: 15px;
+}
+
+.closebtn {
+    margin-left: 15px;
+    color: white;
+    font-weight: bold;
+    float: right;
+    font-size: 22px;
+    line-height: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.closebtn:hover {
+    color: black;
+}
+/*-- //Alert --*/
+
+

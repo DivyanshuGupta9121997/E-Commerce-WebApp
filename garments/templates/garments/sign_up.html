@@ -1,0 +1,214 @@
+{% extends 'garments/base_visitor.html' %}
+
+{% load static %}
+{% block title %} Cart: DGarments {% endblock %}
+
+
+
+
+{% block style %} 
+	table {
+	    border-collapse: collapse;
+	    width: 100%;
+	}
+
+	th, td {
+	    text-align: left;
+	    padding: 8px;
+	}
+	th {
+	    background-color: rgb(0,0,0);
+	    color: white;
+	}
+	tr:nth-child(even){background-color: #f2f2f2}
+
+	.alert {
+	    padding: 20px;
+	    background-color: #f44336;
+	    color: white;
+	    opacity: 1;
+	    transition: opacity 0.6s;
+	    margin-bottom: 15px;
+	}
+
+	.closebtn {
+	    margin-left: 15px;
+	    color: white;
+	    font-weight: bold;
+	    float: right;
+	    font-size: 22px;
+	    line-height: 20px;
+	    cursor: pointer;
+	    transition: 0.3s;
+	}
+
+	.closebtn:hover {
+	    color: black;
+	}
+{% endblock %}
+
+
+
+
+
+{% block SecHeader %} 
+	<div class='jumbotron header' style='color:white; background-color: #000000;border: 0;margin: 0;padding: 1% 5% 1% 5%;'>
+		<!-- <div class=""> -->
+		<img alt = 'Happy shopping' src='{% static "garments/images/h_shopping.jpeg" %}' width=90 height=90 style='float:left;'>
+		<h2>&nbsp&nbspSee you soon</h2>
+		<small>&nbsp&nbsp&nbsp&nbspPlease check the bill and proceed to pay.</small>
+		<!-- </div> -->
+	</div>
+{% endblock %}
+
+
+
+
+{% block body %} 
+
+{% if error_message %}
+<div class="alert">
+  <span class="closebtn">&times;</span>  
+  <strong>Error!</strong> {{ error_message }}
+</div>
+
+<script>
+	var close = document.getElementsByClassName("closebtn");
+	var i;
+
+	for (i = 0; i < close.length; i++) {
+	    close[i].onclick = function(){
+	        var div = this.parentElement;
+	        div.style.opacity = "0";
+	        setTimeout(function(){ div.style.display = "none"; }, 600);
+	    }
+	}
+</script>
+{% else %}
+	<div class='row'>
+		<div class="col-md-1"> </div>
+		<div class="col-md-10">
+			<div class="thumbnail"  style='margin-top:1%;margin-bottom:5%;padding:5%;box-shadow: 0 0 1px blue;width:103%;'>
+				<div style='text-align:center;'>
+					<h2 style='color:rgb(0,100,180);'>DHAKAD GARMENTS</h2>
+					<h4><u>New User Sign Up</u></h4>
+				</div>
+			      <form id='signup_form' onsubmit="return validateForm()" class="form-horizontal" action="{% url 'garments:sign_up' %}" method='post' >
+				    {% csrf_token %}
+				    <div class="form-group">
+				      <label class="control-label col-sm-2" for="first_name">First Name:</label>
+				      <div class="col-sm-10">
+				        <input type="text" name='first_name' class="form-control" id="first_name" placeholder="Enter First Name" required>
+				      </div>
+			  	    </div>
+				    <div class="form-group">
+				      <label class="control-label col-sm-2" for="last_name">Last Name:</label>
+				      <div class="col-sm-10">
+				        <input type="text" name='last_name' class="form-control" id="last_name" placeholder="Enter Last Name">
+				      </div>
+			  	    </div>
+				    <div class="form-group">
+				      <label class="control-label col-sm-2" for="email">Email:</label>
+				      <div class="col-sm-10">
+				        <input type="email" name='email' class="form-control" id="email" placeholder="Enter Email" required>
+				      </div>
+			  	    </div>
+				    <div class="form-group">
+				      <label class="control-label col-sm-2" for="username">Username:</label>
+				      <div class="col-sm-10">
+				        <input type="text" name='username' class="form-control" id="username" placeholder="Enter Username" required>
+				      </div>
+			  	    </div>
+				    <div class="form-group">
+				      <label  class="control-label col-sm-2" for="password1">Password:</label>
+				      <div class="col-sm-10">
+				        <input type="password" name='password1' class="form-control" id="password1" placeholder="Enter Password" required>
+				      </div>
+			  	    </div>
+				    <div class="form-group">
+				      <label class="control-label col-sm-2" for="pasword2">Confirm Password:</label>
+				      <div class="col-sm-10">
+				        <input type="password" name='password2' class="form-control" id="password2" placeholder="Re-Enter Password" required>
+				      </div>
+			  	    </div>		
+				    <div class="form-group">
+				      <label class="control-label col-sm-2" for="address">Phone No.:</label>
+				      <div class="col-sm-10">
+				        <input type='tel' name='phone_no' class="form-control" id="phone_no" placeholder="Enter Your Phone No." required>
+				      </div>
+				    </div>			  	    	  	    
+				    <div class="form-group">
+				      <label class="control-label col-sm-2" for="address">Address:</label>
+				      <div class="col-sm-10">
+				        <input type='text' name='address' class="form-control" id="address" placeholder="Enter Your Address" required>
+				      </div>
+				    </div>
+				    <input type="hidden" name="is_admin" value="0" />
+				    <div class="form-group">
+						<div style='text-align:center;'>
+							<input type='submit' class='btn btn-primary' value='Sign Up' style='margin-top: 20px;'>
+						</div>
+				    </div>
+				  </form>
+			</div>
+		</div>
+		<div class="col-md-1"> </div>
+		
+		<script>
+			function validateForm() {
+			    var fn = document.forms["signup_form"].getElementsById("first_name").value;
+			    var ln = document.forms["signup_form"]["last_name"].value;
+			    var email = document.forms["signup_form"]["email"].value;
+			    var un = document.forms["signup_form"]["username"].value;
+			    var p1 = document.forms["signup_form"]["password1"].value;
+			    var p2 = document.forms["signup_form"]["password2"].value;
+			    var ph = document.forms["signup_form"].getElementsById("phone_no").value;
+			    var address = document.forms["signup_form"]["address"].value;
+
+			    var name = /^[a-zA-Z ]+$/;
+			    var emailExp = /^[w-.+]+@[a-zA-Z0-9.-]+.[a-zA-z0-9]{2,4}$/;
+			    var phoneExp = /^[()0-9 +-]+$/;
+
+			    if(fn == "" || ln == "" || email == "" || un == "" || p1 == "" || p2 == "" || ph == "" || address == "" ) {
+			        alert("Please fill all the fields.");
+			        return false;
+			    }
+
+			    if (p1 != p2){
+			    	alert("Passwords in the two fields do not match.");
+			        return false;
+			    }
+
+			    if (p1.length < 8){
+			    	alert("Password should be at least 8 characters long.");
+			        return false;
+			    }
+
+			    if(! fn.match(name)){
+			    	alert("Name should contain only alphabets.");
+			        return false;
+			    }
+
+			    if(! ln.match(name)){
+			    	alert("Name should contain only alphabets.");
+			        return false;
+			    }
+
+			    if(! email.match(emailExp)){
+			    	alert("Email should be in proper format.");
+			        return false;
+			    }
+
+			    if(! ph.match(emailExp)){
+			    	alert("Phone no should be in proper format.");
+			        return false;
+			    }
+
+			}
+		</script>
+	</div>
+{% endif %}
+{% endblock %}
+
+
+
