@@ -32,7 +32,7 @@ def dictfetchall(cursor):
 
 
 
-# Views Utils --- User 
+# Views Utils --- User
 #----------------------------------------------------- Authentication -----------------------------------------------------
 def authenticate(username, password, is_admin):
     p = password.encode('utf-8')
@@ -132,18 +132,18 @@ def login_user(request):
 
 def sign_up(request):
     if request.method == "POST":
-        username = request.POST["username"] 
-        email = request.POST["email"] 
-        first_name = request.POST["first_name"] 
-        last_name = request.POST["last_name"] 
-        password = request.POST["password1"] 
-        address = request.POST["address"] 
-        phone_no = request.POST["phone_no"] 
-        is_admin = 0 
+        username = request.POST["username"]
+        email = request.POST["email"]
+        first_name = request.POST["first_name"]
+        last_name = request.POST["last_name"]
+        password = request.POST["password1"]
+        address = request.POST["address"]
+        phone_no = request.POST["phone_no"]
+        is_admin = 0
         p = password.encode('utf-8')
         try:
             with connection.cursor() as cursor:
-                cursor.execute("INSERT INTO CUSTOMER (username, email, password, address, first_name, last_name, phone_no, is_admin) VALUES ('{}','{}','{}','{}','{}','{}',{},{})".format(username, email, hashlib.sha256(p+salt).hexdigest(), address, first_name, last_name, phone_no, is_admin))
+                cursor.execute("INSERT INTO Customer (username, email, password, address, first_name, last_name, phone_no, is_admin) VALUES ('{}','{}','{}','{}','{}','{}',{},{})".format(username, email, hashlib.sha256(p+salt).hexdigest(), address, first_name, last_name, phone_no, is_admin))
                 user = authenticate(username=username, password=password, is_admin=is_admin)
                 login(request, user, is_admin)
                 user_id = request.session['id']
@@ -264,15 +264,15 @@ def view_table(request, table_name=None, error_message=None):
             pass
         with connection.cursor() as cursor:
             cursor.execute(sql)
-            rows = cursor.fetchall() 
+            rows = cursor.fetchall()
         if error_message is None:
             return render(request, 'garments/view_table.html', {'Table_name':TableName, 'show_links':show_links,'admin':'True', 'cart_items':cart_items, 'first_name': first_name, 'rows':rows, 'column_heads':column_heads})
         else:
-            return render(request, 'garments/view_table.html', {'error_message':error_message,'Table_name':TableName, 'show_links':show_links,'admin':'True', 'cart_items':cart_items, 'first_name': first_name, 'rows':rows, 'column_heads':column_heads})                
+            return render(request, 'garments/view_table.html', {'error_message':error_message,'Table_name':TableName, 'show_links':show_links,'admin':'True', 'cart_items':cart_items, 'first_name': first_name, 'rows':rows, 'column_heads':column_heads})
     elif is_authenticated(request):
         first_name = request.session['first_name']
         user_id = request.session['id']
-        cart_items = get_cart_items(user_id)        
+        cart_items = get_cart_items(user_id)
         return render(request, 'garments/index.html', {'cart_items':cart_items, 'first_name': first_name, 'best_deals':best_deals,'error_message': 'Need to log in as admin to access the URL.'})
     else:
         return render(request, 'garments/index.html', {'error':'True','error_message': 'Need to log in as admin to access the URL.' })
@@ -285,12 +285,12 @@ def user_order(request):
         sql, column_heads, rows='', [], []
         show_links = 'N'
         column_heads = ["id","Orders_date_time","dispatched_date_time","received_date_time","reference_address","reference_phone_no","is_delivered","username","first_name"]
-        sql = 'SELECT o.id as order_id, o.Orders_date_time as order_time, o.dispatched_date_time as dispatched_time, o.received_date_time as received_date, o.reference_address as address, o.reference_phone_no as phone_no,o.is_delivered as is_delivered, c.username as username, c.first_name as first_name  FROM Orders as o, Customer as c WHERE c.id=o.customer_id AND c.id={};'.format(user_id)
+        sql = 'SELECT o.id as order_id, o.orders_date_time as order_time, o.dispatched_date_time as dispatched_time, o.received_date_time as received_date, o.reference_address as address, o.reference_phone_no as phone_no,o.is_delivered as is_delivered, c.username as username, c.first_name as first_name  FROM Orders as o, Customer as c WHERE c.id=o.customer_id AND c.id={};'.format(user_id)
         show_links = 'Order'
         TableName = 'Previous Orders'
         with connection.cursor() as cursor:
             cursor.execute(sql)
-            rows = cursor.fetchall() 
+            rows = cursor.fetchall()
         if is_authenticated_as_admin(request):
             return render(request, 'garments/view_table.html', {'Table_name':TableName, 'show_links':show_links,'admin':'True', 'cart_items':cart_items, 'first_name': first_name, 'rows':rows, 'column_heads':column_heads})
         else:
@@ -308,14 +308,14 @@ def delete_item_page(request):
         sql = "SELECT {} FROM ItemCategory;".format( ','.join(column_heads) )
         with connection.cursor() as cursor:
             cursor.execute(sql)
-            rows = cursor.fetchall() 
+            rows = cursor.fetchall()
         TableName = 'Items'
         show_links = 'Items'
         return render(request, 'garments/delete_table.html', {'Table_name':TableName, 'show_links':show_links,'admin':'True', 'cart_items':cart_items, 'first_name': first_name, 'rows':rows, 'column_heads':column_heads})
     elif is_authenticated(request):
         first_name = request.session['first_name']
         user_id = request.session['id']
-        cart_items = get_cart_items(user_id)        
+        cart_items = get_cart_items(user_id)
         return render(request, 'garments/index.html', {'cart_items':cart_items, 'first_name': first_name, 'best_deals':best_deals,'error_message': 'Need to log in as admin to access the URL.'})
     else:
         return render(request, 'garments/index.html', {'error':'True','error_message': 'Need to log in as admin to access the URL.' })
@@ -330,7 +330,7 @@ def delete_item(request, item_id):
     elif is_authenticated(request):
         first_name = request.session['first_name']
         user_id = request.session['id']
-        cart_items = get_cart_items(user_id)        
+        cart_items = get_cart_items(user_id)
         return render(request, 'garments/index.html', {'cart_items':cart_items, 'first_name': first_name, 'best_deals':best_deals,'error_message': 'Need to log in as admin to access the URL.'})
     else:
         return render(request, 'garments/index.html', {'error':'True','error_message': 'Need to log in as admin to access the URL.' })
@@ -342,17 +342,17 @@ def delete_order_page(request):
         user_id = request.session['id']
         cart_items = get_cart_items(user_id)
         column_heads = ["id","Orders_date_time","dispatched_date_time","received_date_time","reference_address","reference_phone_no","is_delivered","username","first_name"]
-        sql = 'SELECT o.id as order_id, o.Orders_date_time as order_time, o.dispatched_date_time as dispatched_time, o.received_date_time as received_date, o.reference_address as address, o.reference_phone_no as phone_no,o.is_delivered as is_delivered, c.username as username, c.first_name as first_name  FROM Orders as o, Customer as c WHERE c.id=o.customer_id;'
+        sql = 'SELECT o.id as order_id, o.orders_date_time as order_time, o.dispatched_date_time as dispatched_time, o.received_date_time as received_date, o.reference_address as address, o.reference_phone_no as phone_no,o.is_delivered as is_delivered, c.username as username, c.first_name as first_name  FROM Orders as o, Customer as c WHERE c.id=o.customer_id;'
         show_links = 'Order'
         with connection.cursor() as cursor:
             cursor.execute(sql)
-            rows = cursor.fetchall() 
+            rows = cursor.fetchall()
         TableName = 'Orders'
         return render(request, 'garments/delete_table.html', {'Table_name':TableName, 'show_links':show_links,'admin':'True', 'cart_items':cart_items, 'first_name': first_name, 'rows':rows, 'column_heads':column_heads})
     elif is_authenticated(request):
         first_name = request.session['first_name']
         user_id = request.session['id']
-        cart_items = get_cart_items(user_id)        
+        cart_items = get_cart_items(user_id)
         return render(request, 'garments/index.html', {'cart_items':cart_items, 'first_name': first_name, 'best_deals':best_deals,'error_message': 'Need to log in as admin to access the URL.'})
     else:
         return render(request, 'garments/index.html', {'error':'True','error_message': 'Need to log in as admin to access the URL.' })
@@ -366,7 +366,7 @@ def delete_order(request, order_id):
     elif is_authenticated(request):
         first_name = request.session['first_name']
         user_id = request.session['id']
-        cart_items = get_cart_items(user_id)        
+        cart_items = get_cart_items(user_id)
         return render(request, 'garments/index.html', {'cart_items':cart_items, 'first_name': first_name, 'best_deals':best_deals,'error_message': 'Need to log in as admin to access the URL.'})
     else:
         return render(request, 'garments/index.html', {'error':'True','error_message': 'Need to log in as admin to access the URL.' })
@@ -383,7 +383,7 @@ def insert_item_page(request):
     elif is_authenticated(request):
         first_name = request.session['first_name']
         user_id = request.session['id']
-        cart_items = get_cart_items(user_id)        
+        cart_items = get_cart_items(user_id)
         return render(request, 'garments/index.html', {'cart_items':cart_items, 'first_name': first_name, 'best_deals':best_deals,'error_message': 'Need to log in as admin to access the URL.'})
     else:
         return render(request, 'garments/index.html', {'error':'True','error_message': 'Need to log in as admin to access the URL.' })
@@ -402,29 +402,29 @@ def insert_item(request):
             target_people_group = request.POST['target_people_group']
             # request.POST['image_url']
             with connection.cursor() as cursor:
-                cursor.execute("INSERT INTO itemCategory (type_of_item, brand, size, quantity, cost_price_pi, mrp, discount, target_people_group) VALUES ('{}','{}','{}',{},{},{},{},'{}')".format(type_of_item, brand, size, quantity, cost_price_pi, mrp, discount, target_people_group))
+                cursor.execute("INSERT INTO ItemCategory (type_of_item, brand, size, quantity, cost_price_pi, mrp, discount, target_people_group) VALUES ('{}','{}','{}',{},{},{},{},'{}')".format(type_of_item, brand, size, quantity, cost_price_pi, mrp, discount, target_people_group))
             return view_table(request,'1')
         else:
             return render(request, 'garments/index.html', {'first_name':first_name,'error_message': 'Invalid method' })
     elif is_authenticated(request):
         first_name = request.session['first_name']
         user_id = request.session['id']
-        cart_items = get_cart_items(user_id)        
+        cart_items = get_cart_items(user_id)
         return render(request, 'garments/index.html', {'cart_items':cart_items, 'first_name': first_name, 'best_deals':best_deals,'error_message': 'Need to log in as admin to access the URL.'})
     else:
         return render(request, 'garments/index.html', {'error':'True','error_message': 'Need to log in as admin to access the URL.' })
-    
+
 
 def modify_item(request):
     if is_authenticated_as_admin(request):
         first_name = request.session['first_name']
         user_id = request.session['id']
-        cart_items = get_cart_items(user_id)   
+        cart_items = get_cart_items(user_id)
         if request.method == "POST":
             if not request.POST['id'].strip() == '':
                 item_id = request.POST['id']
                 with connection.cursor() as cursor:
-                    cursor.execute("UPDATE itemCategory SET type_of_item='{}', brand='{}', size='{}', quantity={}, cost_price_pi={}, mrp={}, discount={}, target_people_group='{}' WHERE id={}".format(type_of_item, brand, size, quantity, cost_price_pi, mrp, discount, target_people_group,item_id))
+                    cursor.execute("UPDATE ItemCategory SET type_of_item='{}', brand='{}', size='{}', quantity={}, cost_price_pi={}, mrp={}, discount={}, target_people_group='{}' WHERE id={}".format(type_of_item, brand, size, quantity, cost_price_pi, mrp, discount, target_people_group,item_id))
                 return view_table(request,'5')
             else:
                 return view_table(request,'5','You Need to give Item_id to update an item.')
@@ -433,11 +433,11 @@ def modify_item(request):
     elif is_authenticated(request):
         first_name = request.session['first_name']
         user_id = request.session['id']
-        cart_items = get_cart_items(user_id)        
+        cart_items = get_cart_items(user_id)
         return render(request, 'garments/index.html', {'cart_items':cart_items, 'first_name': first_name, 'best_deals':best_deals,'error_message': 'Need to log in as admin to access the URL.'})
     else:
         return render(request, 'garments/index.html', {'error':'True','error_message': 'Need to log in as admin to access the URL.' })
-    
+
 def modify_order_page(request):
     if is_authenticated_as_admin(request):
         first_name = request.session['first_name']
@@ -457,7 +457,7 @@ def modify_order(request):
     if is_authenticated_as_admin(request):
         first_name = request.session['first_name']
         user_id = request.session['id']
-        cart_items = get_cart_items(user_id)   
+        cart_items = get_cart_items(user_id)
         if request.method == "POST":
             Orders_date_time = str(datetime.now())
             reference_phone_no = request.POST["reference_phone_no"]
@@ -471,7 +471,7 @@ def modify_order(request):
     elif is_authenticated(request):
         first_name = request.session['first_name']
         user_id = request.session['id']
-        cart_items = get_cart_items(user_id)        
+        cart_items = get_cart_items(user_id)
         return render(request, 'garments/index.html', {'cart_items':cart_items, 'first_name': first_name, 'best_deals':best_deals,'error_message': 'Need to log in as admin to access the URL.'})
     else:
         return render(request, 'garments/index.html', {'error':'True','error_message': 'Need to log in as admin to access the URL.' })
@@ -528,10 +528,10 @@ def filter_items(request):
                 sql+=' target_people_group IN {}'.format( '("{}")'.format('","'.join([str(c) for c in categories if not(c=='all')])) )
                 display_category_string = ', '.join([str(c) for c in categories if not(c=='all')])
             MIN, MAX = [ int(s[:-4].strip()) for s in  price_range.split('-')]
-            sql += ' AND mrp BETWEEN {} AND {}'.format(MIN, MAX)   
+            sql += ' AND mrp BETWEEN {} AND {}'.format(MIN, MAX)
         else:
             MIN, MAX = [ int(s[:-4].strip()) for s in  price_range.split('-')]
-            sql += ' WHERE mrp BETWEEN {} AND {}'.format(MIN, MAX)     
+            sql += ' WHERE mrp BETWEEN {} AND {}'.format(MIN, MAX)
         if not(len(sort_by)==0):
             sql+=' ORDER BY '
             if sort_by=='Name':
@@ -592,7 +592,7 @@ def women_items(request):
         cursor.execute('SELECT DISTINCT(brand) FROM ItemCategory;')
         brands = [i['brand'] for i in dictfetchall(cursor)]
         cursor.execute('SELECT DISTINCT(target_people_group) FROM ItemCategory;')
-        categories = [i['target_people_group'] for i in dictfetchall(cursor)]    
+        categories = [i['target_people_group'] for i in dictfetchall(cursor)]
     if is_authenticated_as_admin(request):
         first_name = request.session['first_name']
         user_id = request.session['id']
@@ -611,11 +611,11 @@ def kids_items(request):
     search_string, display_brand_string, display_category_string, price_range = None, 'No Constraint','Kids','0 Rs. - 10000 Rs. '
     with connection.cursor() as cursor:
         cursor.execute('SELECT * FROM ItemCategory WHERE target_people_group IN ("Kids", "kids");')
-        item_categories = dictfetchall(cursor)   
+        item_categories = dictfetchall(cursor)
         cursor.execute('SELECT DISTINCT(brand) FROM ItemCategory;')
         brands = [i['brand'] for i in dictfetchall(cursor)]
         cursor.execute('SELECT DISTINCT(target_people_group) FROM ItemCategory;')
-        categories = [i['target_people_group'] for i in dictfetchall(cursor)] 
+        categories = [i['target_people_group'] for i in dictfetchall(cursor)]
     if is_authenticated_as_admin(request):
         first_name = request.session['first_name']
         user_id = request.session['id']
@@ -633,7 +633,7 @@ def men_items(request):
     search_string, display_brand_string, display_category_string, price_range = None, 'No Constraint','Men','0 Rs. - 10000 Rs. '
     with connection.cursor() as cursor:
         cursor.execute('SELECT * FROM ItemCategory WHERE target_people_group IN ("Men", "men", "boys", "Boys");')
-        item_categories = dictfetchall(cursor)    
+        item_categories = dictfetchall(cursor)
         cursor.execute('SELECT DISTINCT(brand) FROM ItemCategory;')
         brands = [i['brand'] for i in dictfetchall(cursor)]
         cursor.execute('SELECT DISTINCT(target_people_group) FROM ItemCategory;')
@@ -671,8 +671,8 @@ def item_detail(request,item_category_id):
         cursor.execute('SELECT * from ItemCategory WHERE id={};'.format(item_category_id))
         r = dictfetchall(cursor)
         if len(r)==0:
-            return render(request, 'garments/cart.html', {'error':'True','error_message': 'Trying to access a non existing URL.',})    
-        else:    
+            return render(request, 'garments/cart.html', {'error':'True','error_message': 'Trying to access a non existing URL.',})
+        else:
             item = r[0]
             final_price = float(item['mrp'])-float(item['discount'])
             feedbacks = get_feedbacks_for_item_category(request, item_category_id)
@@ -689,16 +689,16 @@ def add_feedback(request,item_category_id):
         cursor.execute('SELECT * from ItemCategory WHERE id={};'.format(item_category_id))
         r = dictfetchall(cursor)
         if len(r)==0:
-            return render(request, 'garments/cart.html', {'error':'True','error_message': 'Trying to access a non existing URL.',})    
-        else:  
+            return render(request, 'garments/cart.html', {'error':'True','error_message': 'Trying to access a non existing URL.',})
+        else:
             if request.method == "POST":
                 if is_authenticated(request):
                     feedback = request.POST['feedback']
                     user_id = request.session['id']
                     feedback_date_time = str(datetime.now())
                     with connection.cursor() as cursor:
-                        # return HttpResponse('INSERT INTO feedback (item_category_id, customer_id, feedback_text) VALUES ({},{},"{}");'.format(item_category_id, user_id, feedback))
-                        cursor.execute('INSERT INTO feedback (item_category_id, customer_id, feedback_text,feedback_date_time) VALUES ({},{},"{}","{}");'.format(item_category_id, user_id, feedback, feedback_date_time))
+                        # return HttpResponse('INSERT INTO Feedback (item_category_id, customer_id, feedback_text) VALUES ({},{},"{}");'.format(item_category_id, user_id, feedback))
+                        cursor.execute('INSERT INTO Feedback (item_category_id, customer_id, feedback_text,feedback_date_time) VALUES ({},{},"{}","{}");'.format(item_category_id, user_id, feedback, feedback_date_time))
                     return item_detail(request,item_category_id)
                 else:
                     return item_detail(request,item_category_id)
@@ -760,7 +760,7 @@ def add_item_category_to_cart(request,item_category_id):
                         cart_remark = request.session['cart_remarks']
                         return render(request, 'garments/cart.html',{'first_name':first_name, 'cart_items':cart_items, 'cart_remark':cart_remark, 'error_message': 'Sorry Item not available in sufficient quantity to add to your cart.' })
                     cursor.execute("COMMIT;")
-                    return cart(request) 
+                    return cart(request)
                 except IntegrityError:
                     cursor.execute("ROLLBACK;")
                     first_name = request.session['first_name']
@@ -796,7 +796,7 @@ def billing(request):
         user_id = request.session['id']
         cart_items = get_cart_items(user_id)
         delivery_charge = 25.00
-        tax_percentage = 10.00 
+        tax_percentage = 10.00
         total = sum([c['quantity']*(c['mrp']) for c in cart_items])
         discount = sum([c['quantity']*(-c['discount']) for c in cart_items])
         tax = total*(tax_percentage/100)
@@ -823,7 +823,7 @@ def place_order(request):# Proceed to pay
             with connection.cursor() as cursor:
                 try:
                     cursor.execute("COMMIT;")
-                    cursor.execute("START TRANSACTION;") 
+                    cursor.execute("START TRANSACTION;")
                     cursor.execute('SELECT * FROM ItemCart as t1,ItemCategory as t2 WHERE t1.item_category_id=t2.id AND customer_id={};'.format(user_id))
                     item_in_cart = dictfetchall(cursor)
                     for item in item_in_cart:
@@ -835,7 +835,7 @@ def place_order(request):# Proceed to pay
                         cond_1 = ((cond_1) and ( r[0]['is_item_available'] > 0))
                     if cond_1:
                         # make an order
-                        cursor.execute('INSERT INTO Orders (Orders_date_time, customer_id, reference_phone_no, reference_address) VALUES ("{}",{},{},"{}");'.format(order_date_time, user_id, ref_phone_no, ref_address))
+                        cursor.execute('INSERT INTO Orders (orders_date_time, customer_id, reference_phone_no, reference_address) VALUES ("{}",{},{},"{}");'.format(order_date_time, user_id, ref_phone_no, ref_address))
                         # cursor.execute('Select * from Orders;')
                         # return HttpResponse("<h1> {} </h1>".format(dictfetchall(cursor)))
                         # cursor.execute('SELECT id as order_id FROM Orders WHERE NOT(Orders_date_time="{}") AND customer_id={};'.format(order_date_time, user_id))
@@ -845,7 +845,7 @@ def place_order(request):# Proceed to pay
                         # add all such items to ItemOrder
                         for item in item_in_cart:
                             cursor.execute("INSERT INTO ItemOrders (orders_id,item_category_id,quantity,cost_price_pi,mrp,discount) VALUES ('{}',{},{},{},{},{});".format(order_id, item['icid'], item['qty'],item['cost_price_pi'],item['mrp'],item['discount']))
-                        # delete all items from itemCart
+                        # delete all items from ItemCart
                         for item in item_in_cart:
                             cursor.execute("DELETE from ItemCart where customer_id = {} AND item_category_id = {};".format(user_id, item['icid']))
                     else:

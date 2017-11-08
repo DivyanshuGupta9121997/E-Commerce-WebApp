@@ -1,6 +1,6 @@
-drop database garments_db;
-create database garments_db;
-use garments_db;
+drop database dhakadgarments$default;
+create database dhakadgarments$default;
+use dhakadgarments$default;
 DROP TABLE IF EXISTS Customer;
 DROP TABLE IF EXISTS ItemCategory;
 DROP TABLE IF EXISTS Provider;
@@ -11,7 +11,7 @@ DROP TABLE IF EXISTS ItemDemand;
 DROP TABLE IF EXISTS Itemp;
 DROP TABLE IF EXISTS Orders;
 DROP TABLE IF EXISTS ItemCart;
-DROP TABLE IF EXISTS ItemCategory; 
+DROP TABLE IF EXISTS ItemCategory;
 DROP TABLE IF EXISTS Employee;
 DROP TABLE IF EXISTS Transaction;
 DROP TABLE IF EXISTS Feedback;
@@ -42,13 +42,12 @@ CREATE TABLE IF NOT EXISTS ItemCategory(
 	mrp float CHECK(mrp>=0),
 	discount float CHECK(discount>=0),
 	target_people_group varchar(250),
-	photo blob DEFAULT '/media/default_category_image.jpg',
 	UNIQUE (type_of_item, size)
 );
 
 CREATE TABLE IF NOT EXISTS Orders(
 	id int PRIMARY KEY AUTO_INCREMENT,
-	Orders_date_time datetime,
+	orders_date_time datetime,
 	dispatched_date_time datetime,
 	received_date_time datetime,
 	reference_phone_no varchar(20),
@@ -167,13 +166,13 @@ CREATE TABLE IF NOT EXISTS Feedback(
 
 
 
-insert into customer (username, email, first_name, last_name, password, address, phone_no, cart_remarks, is_admin) values('King','king@king.com','King','Khan','2e667f6d717dbc4fba9579646dc121cc5afc432f8f9feade007bc341f4336fa6','112 Lala Stree, Lajpat Nagar, Delhi', '9986568956','There are some electronics to be added in cart',0);
-insert into customer (username, email, first_name, last_name, password, address, phone_no, cart_remarks, is_admin) values('Admin','admin@admin.com','Admin','min','cf45c36344936e0f8784ecd929dce9f52eed1f93dbe212a513c148af7a84249c','admin nagar', '9986568956','You can type your wish-list here.',1);
+insert into Customer (username, email, first_name, last_name, password, address, phone_no, cart_remarks, is_admin) values('King','king@king.com','King','Khan','2e667f6d717dbc4fba9579646dc121cc5afc432f8f9feade007bc341f4336fa6','112 Lala Stree, Lajpat Nagar, Delhi', '9986568956','There are some electronics to be added in cart',0);
+insert into Customer (username, email, first_name, last_name, password, address, phone_no, cart_remarks, is_admin) values('Admin','admin@admin.com','Admin','min','cf45c36344936e0f8784ecd929dce9f52eed1f93dbe212a513c148af7a84249c','admin nagar', '9986568956','You can type your wish-list here.',1);
 
 insert into ItemCategory (type_of_item,brand,size,quantity,cost_price_pi,mrp,discount,target_people_group) values('Leggies','Lyra','02',10,300.0,330.0,20,'Women');
 insert into ItemCategory (type_of_item,brand,size,quantity,cost_price_pi,mrp,discount,target_people_group) values('Cotswool','LUX','L',16,450.0,500.0,40,'Men');
 insert into ItemCategory (type_of_item,brand,size,quantity,cost_price_pi,mrp,discount,target_people_group) values('Diapers','BooBoo','S',16,40.0,50.0,10,'Kids');
-insert into ItemCategory (type_of_item,brand,size,quantity,cost_price_pi,mrp,discount,target_people_group) values('Diapers','BooBoo','L',16,450.0,500.0,10,'Kids');	
+insert into ItemCategory (type_of_item,brand,size,quantity,cost_price_pi,mrp,discount,target_people_group) values('Diapers','BooBoo','L',16,450.0,500.0,10,'Kids');
 insert into ItemCategory (type_of_item,brand,size,quantity,cost_price_pi,mrp,discount,target_people_group) values('Formal-Suit','Armani','XL',15,4500.0,5000.0,300,'Men');
 insert into ItemCategory (type_of_item,brand,size,quantity,cost_price_pi,mrp,discount,target_people_group) values('Designer-Saree','Shree','',100,2700.0,3000.0,200,'Women');
 
