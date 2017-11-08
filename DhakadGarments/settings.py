@@ -82,11 +82,11 @@ WSGI_APPLICATION = 'DhakadGarments.wsgi.application'
 # }
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql', 
-        'NAME': 'garments_db',
-        'USER': 'root',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'dhakadgarments$default',
+        'USER': 'dhakadgarments',
         'PASSWORD': 'dhakad17',
-        'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
+        'HOST': 'dhakadgarments.mysql.pythonanywhere-services.com',   # Or an IP Address that your DB is hosted on
         'PORT': '3306',
     }
 }
