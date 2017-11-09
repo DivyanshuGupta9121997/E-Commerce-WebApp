@@ -31,6 +31,10 @@ def dictfetchall(cursor):
     ]
 
 
+def write_file(filename,s):
+    with open(filename, 'wb') as f:
+        f.write(s)
+
 
 # Views Utils --- User
 #----------------------------------------------------- Authentication -----------------------------------------------------
@@ -81,6 +85,8 @@ def index(request):
         first_name = request.session['first_name']
         user_id = request.session['id']
         cart_items = get_cart_items(user_id)
+        for item in best_deals:
+            write_file('./garments/static/garments/images/img-{}.jpg'.format(item['id']) ,  item['photo'])
         if is_authenticated_as_admin(request):
             return render(request, 'garments/index.html', {'admin':'True','cart_items':cart_items, 'first_name': first_name, 'best_deals':best_deals})
         else:
@@ -130,7 +136,7 @@ def login_user(request):
             return render(request, 'garments/index.html', {'error':'True','error_message': 'Invalid username or password' })
     return render(request, 'garments/index.html', {'error':'True', 'error_message': 'Invalid method' })
 
-def sign_up(request):
+def sign_up(request, is_modify=None):
     if request.method == "POST":
         username = request.POST["username"]
         email = request.POST["email"]
@@ -143,18 +149,21 @@ def sign_up(request):
         p = password.encode('utf-8')
         try:
             with connection.cursor() as cursor:
-                cursor.execute("INSERT INTO Customer (username, email, password, address, first_name, last_name, phone_no, is_admin) VALUES ('{}','{}','{}','{}','{}','{}',{},{})".format(username, email, hashlib.sha256(p+salt).hexdigest(), address, first_name, last_name, phone_no, is_admin))
+                if is_modify is None:
+                   cursor.execute("INSERT INTO Customer (username, email, password, address, first_name, last_name, phone_no, is_admin) VALUES ('{}','{}','{}','{}','{}','{}',{},{})".format(username, email, hashlib.sha256(p+salt).hexdigest(), address, first_name, last_name, phone_no, is_admin))
+                else:
+                    cursor.execute("UPDATE Customer SET username='{}', email='{}', password='{}', address='{}', first_name='{}', last_name='{}', phone_no={};".format(username, email, hashlib.sha256(p+salt).hexdigest(), address, first_name, last_name, phone_no))
                 user = authenticate(username=username, password=password, is_admin=is_admin)
                 login(request, user, is_admin)
                 user_id = request.session['id']
                 user_email = request.session['email']
                 username = request.session['username']
                 cart_items = get_cart_items(user_id)
-                subj = 'SignUP Confirmation for Dhakad Garments'
-                html_message = '<a href="#">Follow this link to confirm your registration.</a><br>Thank you for registering to our site.'.format(cipher_suite.encrypt(b"{}".format(username)))
-                message = 'Dear {},\nPlease go to the following link to confirm your account:\n'.format(username)
-                admin_email = 'dhakad.garments.17@gmail.com'
-                send_mail(subj,message,admin_email,user_email,auth_user=admin_email,auth_password='dhakad17' ,fail_silently=False, html_message=html_message)
+                # subj = 'SignUP Confirmation for Dhakad Garments'
+                # html_message = '<a href="#">Follow this link to confirm your registration.</a><br>Thank you for registering to our site.'.format(cipher_suite.encrypt(b"{}".format(username)))
+                # message = 'Dear {},\nPlease go to the following link to confirm your account:\n'.format(username)
+                # admin_email = 'dhakad.garments.17@gmail.com'
+                # send_mail(subj,message,admin_email,user_email,auth_user=admin_email,auth_password='dhakad17' ,fail_silently=False, html_message=html_message)
                 return render(request, 'garments/index.html',{'cart_items':cart_items, 'first_name':user['first_name']})
         except IntegrityError:
             pass
@@ -167,7 +176,13 @@ def sign_up_page(request):
     else:
         return render(request, 'garments/sign_up.html')
 
-
+def pre_sign_up(request):
+    if request.method == "POST":
+        username = request.POST["username"]
+        email = request.POST["email"]
+        phone_no = request.POST["phone_no"]
+        return sign_up_page(request)
+    return render(request, 'garments/index.html', {'error':'True', 'error_message': 'Invalid method' })
 
 #----------------------------------------------------- //Authentication -----------------------------------------------------
 
@@ -177,7 +192,6 @@ def sign_up_page(request):
 
 
 #----------------------------------------------------- ADMIN -----------------------------------------------------
-
 
 def admin_home(request):
     if is_authenticated_as_admin(request):
@@ -200,7 +214,7 @@ def order_details(request, order_id, return_to):
             rows = cursor.fetchall()
             cursor.execute('SELECT o.is_delivered as is_delivered FROM Orders as o WHERE o.id={};'.format(order_id))
             r = cursor.fetchall()[0][0]
-            column_heads = ["item_id","item","brand","size","cost_price_pi","mrp","discount","quantity"]
+            column_heads = ["item_id","item","brand","size","cost_price_pi","mrp","discount","quantity","is_delivered"]
         if return_to=='V':
             return render(request, 'garments/view_table.html', {'is_delivered':r,'order_id': order_id,'show_links' : 'Order_detail','admin':'True', 'cart_items':cart_items, 'first_name': first_name, 'rows':rows, 'column_heads':column_heads})
         elif return_to=='D':
@@ -214,18 +228,20 @@ def order_details(request, order_id, return_to):
             rows = cursor.fetchall()
             cursor.execute('SELECT o.is_delivered as is_delivered FROM Orders as o WHERE o.id={};'.format(order_id))
             r = cursor.fetchall()[0][0]
-            column_heads = ["item_id","item","brand","size","cost_price_pi","mrp","discount","quantity"]
+            column_heads = ["item_id","item","brand","size","cost_price_pi","mrp","discount","quantity","is_delivered"]
             return render(request, 'garments/view_table.html', {'is_delivered':r,'order_id': order_id,'show_links' : 'Order_detail','cart_items':cart_items, 'first_name': first_name, 'rows':rows, 'column_heads':column_heads})
+
+
 
 def mark_delivered(request,order_id):
     if is_authenticated_as_admin(request):
         first_name = request.session['first_name']
         user_id = request.session['id']
         cart_items = get_cart_items(user_id)
+        received_date_time = str(datetime.now())
         with connection.cursor() as cursor:
-            cursor.execute("UPDATE Orders SET is_delivered='Y' WHERE id={};".format(order_id))
+            cursor.execute("UPDATE Orders SET is_delivered='Y', received_date_time = {} WHERE id={};".format(order_id,received_date_time))
         return order_details(request, order_id, 'V')
-
 
 
 def view_table(request, table_name=None, error_message=None):
@@ -254,7 +270,7 @@ def view_table(request, table_name=None, error_message=None):
             TableName = 'Employees'
         elif table_name == '5':
             column_heads = ["id","Orders_date_time","dispatched_date_time","received_date_time","reference_address","reference_phone_no","is_delivered","username","first_name"]
-            sql = 'SELECT o.id as order_id, o.Orders_date_time as order_time, o.dispatched_date_time as dispatched_time, o.received_date_time as received_date, o.reference_address as address, o.reference_phone_no as phone_no,o.is_delivered as is_delivered, c.username as username, c.first_name as first_name  FROM Orders as o, Customer as c WHERE c.id=o.customer_id;'
+            sql = 'SELECT o.id as order_id, o.orders_date_time as order_time, o.dispatched_date_time as dispatched_time, o.received_date_time as received_date, o.reference_address as address, o.reference_phone_no as phone_no,o.is_delivered as is_delivered, c.username as username, c.first_name as first_name  FROM Orders as o, Customer as c WHERE c.id=o.customer_id;'
             show_links = 'Order'
         elif table_name == 'provider':
             pass
@@ -276,6 +292,7 @@ def view_table(request, table_name=None, error_message=None):
         return render(request, 'garments/index.html', {'cart_items':cart_items, 'first_name': first_name, 'best_deals':best_deals,'error_message': 'Need to log in as admin to access the URL.'})
     else:
         return render(request, 'garments/index.html', {'error':'True','error_message': 'Need to log in as admin to access the URL.' })
+
 
 def user_order(request):
     if is_authenticated(request):
@@ -371,9 +388,6 @@ def delete_order(request, order_id):
     else:
         return render(request, 'garments/index.html', {'error':'True','error_message': 'Need to log in as admin to access the URL.' })
 
-
-
-
 def insert_item_page(request):
     if is_authenticated_as_admin(request):
         first_name = request.session['first_name']
@@ -389,31 +403,6 @@ def insert_item_page(request):
         return render(request, 'garments/index.html', {'error':'True','error_message': 'Need to log in as admin to access the URL.' })
 
 
-def insert_item(request):
-    if is_authenticated_as_admin(request):
-        if request.method == "POST":
-            type_of_item = request.POST['type_of_item']
-            brand = request.POST['brand']
-            size = request.POST['size']
-            quantity = request.POST['quantity']
-            cost_price_pi = request.POST['cost_price_pi']
-            mrp = request.POST['mrp']
-            discount = request.POST['discount']
-            target_people_group = request.POST['target_people_group']
-            # request.POST['image_url']
-            with connection.cursor() as cursor:
-                cursor.execute("INSERT INTO ItemCategory (type_of_item, brand, size, quantity, cost_price_pi, mrp, discount, target_people_group) VALUES ('{}','{}','{}',{},{},{},{},'{}')".format(type_of_item, brand, size, quantity, cost_price_pi, mrp, discount, target_people_group))
-            return view_table(request,'1')
-        else:
-            return render(request, 'garments/index.html', {'first_name':first_name,'error_message': 'Invalid method' })
-    elif is_authenticated(request):
-        first_name = request.session['first_name']
-        user_id = request.session['id']
-        cart_items = get_cart_items(user_id)
-        return render(request, 'garments/index.html', {'cart_items':cart_items, 'first_name': first_name, 'best_deals':best_deals,'error_message': 'Need to log in as admin to access the URL.'})
-    else:
-        return render(request, 'garments/index.html', {'error':'True','error_message': 'Need to log in as admin to access the URL.' })
-
 
 def modify_item(request):
     if is_authenticated_as_admin(request):
@@ -423,11 +412,20 @@ def modify_item(request):
         if request.method == "POST":
             if not request.POST['id'].strip() == '':
                 item_id = request.POST['id']
+                type_of_item = request.POST['type_of_item']
+                brand = request.POST['brand']
+                size = request.POST['size']
+                quantity = request.POST['quantity']
+                cost_price_pi = request.POST['cost_price_pi']
+                mrp = request.POST['mrp']
+                discount = request.POST['discount']
+                target_people_group = request.POST['target_people_group']
+                photo = request.FILES['photo'].read()
                 with connection.cursor() as cursor:
-                    cursor.execute("UPDATE ItemCategory SET type_of_item='{}', brand='{}', size='{}', quantity={}, cost_price_pi={}, mrp={}, discount={}, target_people_group='{}' WHERE id={}".format(type_of_item, brand, size, quantity, cost_price_pi, mrp, discount, target_people_group,item_id))
-                return view_table(request,'5')
+                    cursor.execute("UPDATE ItemCategory SET type_of_item=%s, brand=%s, size=%s, quantity=%s, cost_price_pi=%s, mrp=%s, discount=%s, target_people_group=%s, photo=%s WHERE id=%s",(type_of_item, brand, size, quantity, cost_price_pi, mrp, discount, target_people_group,item_id, photo))
+                return view_table(request,'1')
             else:
-                return view_table(request,'5','You Need to give Item_id to update an item.')
+                return view_table(request,'1','You Need to give Item_id to update an item.')
         else:
             return render(request, 'garments/index.html', {'admin':'True','first_name':first_name,'error_message': 'Invalid method' })
     elif is_authenticated(request):
@@ -437,6 +435,7 @@ def modify_item(request):
         return render(request, 'garments/index.html', {'cart_items':cart_items, 'first_name': first_name, 'best_deals':best_deals,'error_message': 'Need to log in as admin to access the URL.'})
     else:
         return render(request, 'garments/index.html', {'error':'True','error_message': 'Need to log in as admin to access the URL.' })
+
 
 def modify_order_page(request):
     if is_authenticated_as_admin(request):
@@ -464,7 +463,7 @@ def modify_order(request):
             reference_address = request.POST["reference_address"]
             customer_id = request.POST["customer_id"]
             with connection.cursor() as cursor:
-                cursor.execute("INSERT INTO Orders (Orders_date_time, reference_phone_no, reference_address, customer_id) VALUES ('{}','{}','{}',{});".format(Orders_date_time, reference_phone_no, reference_address, customer_id))
+                cursor.execute("INSERT INTO Orders (orders_date_time, reference_phone_no, reference_address, customer_id) VALUES ('{}','{}','{}',{});".format(Orders_date_time, reference_phone_no, reference_address, customer_id))
             return view_table(request,'5')
         else:
             return render(request, 'garments/index.html', {'admin':'True','first_name':first_name,'error_message': 'Invalid method' })
@@ -488,7 +487,27 @@ def apply_discount_to_item(request): # NOTE it is item
     pass
 
 def user_profile(request):
-    pass
+    if is_authenticated(request):
+        first_name = request.session['first_name']
+        last_name = request.session['last_name']
+        user_id = request.session['id']
+        cart_items = get_cart_items(user_id)
+        in_dict = {'cart_items':cart_items, 'first_name':first_name, 'full_name':first_name+' '+last_name}
+        in_dict['first_name'] = first_name
+        in_dict['last_name'] = last_name
+        in_dict['username'] = request.session['username']
+        in_dict['email'] = request.session['email']
+        in_dict['password'] = request.session['email']
+        in_dict['address'] = request.session['address']
+        in_dict['phone_no'] = request.session['phone_no']
+        in_dict['cart_remarks'] = request.session['cart_remarks']
+        if is_authenticated_as_admin(request):
+            in_dict['admin']='True'
+            return render(request, 'garments/user_profile.html',in_dict)
+        else:
+            return render(request, 'garments/user_profile.html',in_dict)
+    else:
+        return render(request, 'garments/user_profile.html', {'error_message': 'You need to Log In to be able to see your profile.'})
 
 
 #----------------------------------------------------- //ADMIN -----------------------------------------------------
@@ -808,7 +827,11 @@ def billing(request):
         in_dict['delivery_charge'] = delivery_charge
         in_dict['user_phone_no'] = request.session['phone_no']
         in_dict['user_address'] = request.session['address']
-        return render(request, 'garments/billing.html',in_dict)
+        if is_authenticated_as_admin(request):
+            in_dict['admin']='True'
+            return render(request, 'garments/billing.html',in_dict)
+        else:
+            return render(request, 'garments/billing.html',in_dict)
     else:
         return render(request, 'garments/billing.html', {'error_message': 'You need to Log In to be able to see your bills.'})
 
@@ -862,9 +885,52 @@ def place_order(request):# Proceed to pay
 
 #----------------------------------------------------- //BILLING -----------------------------------------------------
 
+def insert_item(request):
+    if is_authenticated_as_admin(request):
+        first_name = request.session['first_name']
+        user_id = request.session['id']
+        cart_items = get_cart_items(user_id)        
+        if request.method == "POST":
+            type_of_item = request.POST['type_of_item']
+            brand = request.POST['brand']
+            size = request.POST['size']
+            quantity = request.POST['quantity']
+            cost_price_pi = request.POST['cost_price_pi']
+            mrp = request.POST['mrp']
+            discount = request.POST['discount']
+            target_people_group = request.POST['target_people_group']
+            photo = request.FILES['photo'].read()
+            with connection.cursor() as cursor:
+                cursor.execute("INSERT INTO ItemCategory (type_of_item, brand, size, quantity, cost_price_pi, mrp, discount, target_people_group, photo) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)",(type_of_item, brand, size, quantity, cost_price_pi, mrp, discount, target_people_group, photo))
+            return view_table(request,'1')
+        else:
+            return render(request, 'garments/index.html', {'first_name':first_name,'error_message': 'Invalid method' })
+    elif is_authenticated(request):
+        first_name = request.session['first_name']
+        user_id = request.session['id']
+        cart_items = get_cart_items(user_id)
+        return render(request, 'garments/index.html', {'cart_items':cart_items, 'first_name': first_name, 'best_deals':best_deals,'error_message': 'Need to log in as admin to access the URL.'})
+    else:
+        return render(request, 'garments/index.html', {'error':'True','error_message': 'Need to log in as admin to access the URL.' })
 
 
 
+# {% extends 'shoeshowroom/template.html' %}
 
+# {% load staticfiles %}
+# {% block content %}
+    
+#     <form method="post" enctype="multipart/form-data">
+#         {% csrf_token %}
+#         <input type="file" name="myfile">
+#         <button type="submit">Upload</button>
+#     </form>
 
+#   {% if uploaded_file_url %}
+#     <p>File uploaded at: <a href="{{ uploaded_file_url }}">{{ uploaded_file_url }}</a></p>
+#   {% endif %}
 
+#   <img src="data:image/png;base64,{{image}}" width="150" height="150" alt="cant find"/>
+  
+
+# {% endblock %}

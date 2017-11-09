@@ -57,8 +57,8 @@
 
     #main div {
 	    display: inline-block;
-    	width: 200px;
-    	height: 350px;
+    	width: 500px;
+    	height: 500px;
     	margin-top:20px;
     	border: 2px blue;
 	}
@@ -76,7 +76,17 @@
 				</div><br>
 
 				<div class='row'>
-					<div class="col-md-6">{{ username }} </div>
+					<div class="col-md-6">
+
+						{% if item.photo %}
+						<div style='text-align:center;'>
+							<img class="img-fluid" style='max-width: 100%; height: auto;' src="/static/garments/images/img-{{ item.id }}.jpg">
+						</div>						
+						{% else %}
+							<img class="img-fluid" style='max-width: 100%; height: auto;' src="{% static 'garments/images/default.jpg' %}">
+						{% endif %}
+
+					</div>
 					<div class="col-md-6"> 
 						<strong class='col-md-4'>Brand</strong>:&nbsp; {{ item.brand }} <br>
 						<strong class='col-md-4'>Size</strong>:&nbsp; {{ item.size }} <br>

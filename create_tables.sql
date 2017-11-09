@@ -42,6 +42,7 @@ CREATE TABLE IF NOT EXISTS ItemCategory(
 	mrp float CHECK(mrp>=0),
 	discount float CHECK(discount>=0),
 	target_people_group varchar(250),
+	photo longblob,
 	UNIQUE (type_of_item, size)
 );
 

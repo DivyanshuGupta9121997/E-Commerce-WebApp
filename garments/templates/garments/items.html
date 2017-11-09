@@ -58,7 +58,7 @@
     #main div {
 	    display: inline-block;
     	width: 200px;
-    	height: 350px;
+    	height: 500px;
     	margin-top:20px;
     	border: 2px blue;
 	}
@@ -143,16 +143,17 @@
 			{% for item_obj in item_categories %}
 				<div style='background-color: white; border:2px blue;margin-left: 20px;'>
 					<div style='float:top;'>
-						{% if item_obj.photo %}
-						<img class="img-fluid" style='max-width: 100%; height: auto;' src="{{ item_obj.photo.url }}">
-						<p>{{ item_obj.photo.url }}</p>
-						{% endif %}
+							{% if item_obj.photo %}
+							<img class="img-fluid" style='max-width: 100%; height: auto;' src='static/garments/images/img-{{ item_obj.id }}.jpg'>	
+							{% else %}
+							<img class="img-fluid" style='max-width: 100%; height: auto;' src="{% static 'garments/images/default.jpg' %}">
+							{% endif %}
 						<div class='text-center'>
 							<a href="{% url 'garments:item_detail' item_obj.id %}"><p style='color:Red;font-weight:bold;'>{{ item_obj.type_of_item }}</p></a>
 							{% if item_obj.size %}
 								<p>Size: {{ item_obj.size }}</p>
 							{% endif %}
-							<p>{{ item_obj.mrp }} Rs.</p><br>
+							<p>{{ item_obj.mrp }} Rs.</p>
 							<form action='{% url "garments:add_to_cart" item_obj.id %}' method='post'>
 								{% csrf_token %}
 								Quantity: <input type="text" name="quantity" value="1" size=5><br><br>

@@ -17,6 +17,7 @@ urlpatterns = [
     url(r'^admin_home$', views.admin_home, name='admin_home'),
     url(r'^user_profile$', views.user_profile, name='user_profile'),
     url(r'^sign_up$', views.sign_up, name='sign_up'),
+    url(r'^sign_up/(?P<is_modify>[0-9]+)$', views.sign_up, name='sign_up'),    
     url(r'^sign_up_page$', views.sign_up_page, name='sign_up_page'),
     url(r'^detail/(?P<item_category_id>[0-9]+)$', views.item_detail, name='item_detail'),
     url(r'^add_feedback/(?P<item_category_id>[0-9]+)$', views.add_feedback, name='add_feedback'),
@@ -36,6 +37,8 @@ urlpatterns = [
     url(r'^men_items$', views.men_items, name='men_items'),
     url(r'^kids_items$', views.kids_items, name='kids_items'),
     url(r'^user_order$', views.user_order, name='user_order'),
+    url(r'^user_profile$', views.user_profile, name='user_profile'),
+    url(r'^pre_sign_up$', views.pre_sign_up, name='pre_sign_up'),
     # url(r'^add_to_cart/(?P<item_category_id>[0-9]+)/(?P<quantity>[0-9]+)$', views.add_item_category_to_cart, name='add_to_cart'),
 ]
 
