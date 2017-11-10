@@ -40,7 +40,7 @@ urlpatterns = [
     url(r'^user_profile$', views.user_profile, name='user_profile'),
     url(r'^post_sign_up/(?P<hashed_username>[\s\S]+)$', views.post_sign_up, name='post_sign_up'),
     url(r'^transaction_status$', views.transaction_status, name='transaction_status'),
-
+    url(r'^modify_item_page$', views.modify_item_page, name='modify_item_page'),
     # url(r'^add_to_cart/(?P<item_category_id>[0-9]+)/(?P<quantity>[0-9]+)$', views.add_item_category_to_cart, name='add_to_cart'),
 ]
 

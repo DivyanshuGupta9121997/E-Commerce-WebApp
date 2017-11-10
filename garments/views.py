@@ -414,6 +414,34 @@ def insert_item_page(request):
         return render(request, 'garments/index.html', {'error':'True','error_message': 'Need to log in as admin to access the URL.' })
 
 
+def modify_item_page(request):
+    if is_authenticated_as_admin(request):
+        first_name = request.session['first_name']
+        user_id = request.session['id']
+        cart_items = get_cart_items(user_id)
+        if request.method == "POST":
+            # return HttpResponse('sorry')
+            if not request.POST['id'].strip() == '':
+                item_id = request.POST['id']
+                with connection.cursor() as cursor:
+                    cursor.execute("SELECT * FROM ItemCategory WHERE id=%s",(item_id,))
+                    r = dictfetchall(cursor)[0]
+                    r['admin'] = 'True'
+                    r['cart_items']=cart_items
+                    r['first_name']= first_name
+                return render(request, 'garments/insert_item_page.html',r)
+            else:
+                return view_table(request,'1','You Need to give Item_id to update an item.')
+        else:
+            return render(request, 'garments/index.html', {'admin':'True','first_name':first_name,'error_message': 'Invalid method' })
+    elif is_authenticated(request):
+        first_name = request.session['first_name']
+        user_id = request.session['id']
+        cart_items = get_cart_items(user_id)
+        return render(request, 'garments/index.html', {'cart_items':cart_items, 'first_name': first_name, 'best_deals':best_deals,'error_message': 'Need to log in as admin to access the URL.'})
+    else:
+        return render(request, 'garments/index.html', {'error':'True','error_message': 'Need to log in as admin to access the URL.' })
+
 
 def modify_item(request):
     if is_authenticated_as_admin(request):
