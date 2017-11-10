@@ -1,6 +1,6 @@
-drop database garments_db;
-create database garments_db;
-use garments_db;
+drop database dhakadgarments$default;
+create database dhakadgarments$default;
+use dhakadgarments$default;
 DROP TABLE IF EXISTS Customer;
 DROP TABLE IF EXISTS ItemCategory;
 DROP TABLE IF EXISTS Provider;
@@ -11,7 +11,7 @@ DROP TABLE IF EXISTS ItemDemand;
 DROP TABLE IF EXISTS Itemp;
 DROP TABLE IF EXISTS Orders;
 DROP TABLE IF EXISTS ItemCart;
-DROP TABLE IF EXISTS ItemCategory; 
+DROP TABLE IF EXISTS ItemCategory;
 DROP TABLE IF EXISTS Employee;
 DROP TABLE IF EXISTS Transaction;
 DROP TABLE IF EXISTS Feedback;
@@ -167,13 +167,13 @@ CREATE TABLE IF NOT EXISTS Feedback(
 
 
 
-insert into customer (username, email, first_name, last_name, password, address, phone_no, cart_remarks, is_admin) values('King','king@king.com','King','Khan',MD5('King'),'112 Lala Stree, Lajpat Nagar, Delhi', '9986568956','There are some electronics to be added in cart',0);
-insert into customer (username, email, first_name, last_name, password, address, phone_no, cart_remarks, is_admin) values('Admin','admin@admin.com','Admin','min',MD5('Admin'),'admin nagar', '9986568956','You can type your wish-list here.',1);
+insert into Customer (username, email, first_name, last_name, password, address, phone_no, cart_remarks, is_admin) values('King','king@king.com','King','Khan',MD5('King'),'112 Lala Stree, Lajpat Nagar, Delhi', '9986568956','There are some electronics to be added in cart',0);
+insert into Customer (username, email, first_name, last_name, password, address, phone_no, cart_remarks, is_admin) values('Admin','admin@admin.com','Admin','min',MD5('Admin'),'admin nagar', '9986568956','You can type your wish-list here.',1);
 
 insert into ItemCategory (type_of_item,brand,size,quantity,cost_price_pi,mrp,discount,target_people_group) values('Leggies','Lyra','02',10,300.0,330.0,20,'Women');
 insert into ItemCategory (type_of_item,brand,size,quantity,cost_price_pi,mrp,discount,target_people_group) values('Cotswool','LUX','L',16,450.0,500.0,40,'Men');
 insert into ItemCategory (type_of_item,brand,size,quantity,cost_price_pi,mrp,discount,target_people_group) values('Diapers','BooBoo','S',16,40.0,50.0,10,'Kids');
-insert into ItemCategory (type_of_item,brand,size,quantity,cost_price_pi,mrp,discount,target_people_group) values('Diapers','BooBoo','L',16,450.0,500.0,10,'Kids');	
+insert into ItemCategory (type_of_item,brand,size,quantity,cost_price_pi,mrp,discount,target_people_group) values('Diapers','BooBoo','L',16,450.0,500.0,10,'Kids');
 insert into ItemCategory (type_of_item,brand,size,quantity,cost_price_pi,mrp,discount,target_people_group) values('Formal-Suit','Armani','XL',15,4500.0,5000.0,300,'Men');
 insert into ItemCategory (type_of_item,brand,size,quantity,cost_price_pi,mrp,discount,target_people_group) values('Designer-Saree','Shree','',100,2700.0,3000.0,200,'Women');
 
