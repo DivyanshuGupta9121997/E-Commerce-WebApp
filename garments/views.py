@@ -150,9 +150,12 @@ def sign_up(request, is_modify=None):
         first_name = request.POST["first_name"]
         last_name = request.POST["last_name"]
         password = request.POST["password1"]
+        password_conf = request.POST["password2"]
         address = request.POST["address"]
         phone_no = request.POST["phone_no"]
         is_admin = 0
+        if not(password == password_conf):
+            return render(request, 'garments/sign_up.html', {'error':'True','error_message': 'password Mismatch' })
         try:
             with connection.cursor() as cursor:
                 if is_modify is None:
@@ -172,7 +175,10 @@ def sign_up(request, is_modify=None):
 # Sign Up view
 def sign_up_page(request):
     if is_authenticated(request):
-        return render(request, 'garments/sign_up.html', {'error_message': 'you already registered' })
+        first_name = request.session['first_name']
+        user_id = request.session['id']
+        cart_items = get_cart_items(user_id)
+        return render(request, 'garments/sign_up.html', {'cart_items':cart_items, 'first_name':user['first_name'],'error_message': 'you already registered' })
     else:
         return render(request, 'garments/sign_up.html')
 

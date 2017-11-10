@@ -93,7 +93,7 @@
 					<h2 style='color:rgb(0,100,180);'>DHAKAD GARMENTS</h2>
 					<h4><u>New User Sign Up</u></h4>
 				</div>
-			      <form id='signup_form' onsubmit="return validateForm()" class="form-horizontal" action="{% url 'garments:sign_up' %}" method='post' >
+			      <form id='signup_form' class="form-horizontal" action="{% url 'garments:sign_up' %}" method='post' >
 				    {% csrf_token %}
 				    <div class="form-group">
 				      <label class="control-label col-sm-2" for="first_name">First Name:</label>
@@ -134,7 +134,8 @@
 				    <div class="form-group">
 				      <label class="control-label col-sm-2" for="address">Phone No.:</label>
 				      <div class="col-sm-10">
-				        <input type='tel' name='phone_no' class="form-control" id="phone_no" placeholder="Enter Your Phone No." required>
+				        <input type='tel' name='phone_no' pattern="[0-9]{10}" class="form-control" id="phone_no" placeholder="Enter Your Phone No." required>
+				        <small>enter your 10 digit phone no.</small>
 				      </div>
 				    </div>			  	    	  	    
 				    <div class="form-group">
@@ -146,7 +147,7 @@
 				    <input type="hidden" name="is_admin" value="0" />
 				    <div class="form-group">
 						<div style='text-align:center;'>
-							<input type='submit' class='btn btn-primary' value='Sign Up' style='margin-top: 20px;'>
+							<input type='submit' id ='bt' class='btn btn-primary' value='Sign Up' style='margin-top: 20px;'>
 						</div>
 				    </div>
 				  </form>
@@ -155,15 +156,18 @@
 		<div class="col-md-1"> </div>
 		
 		<script>
+			submit_btn = document.getElementsById("bt");
+			submit_btn.onclick = validateForm()
 			function validateForm() {
-			    var fn = document.forms["signup_form"].getElementsById("first_name").value;
-			    var ln = document.forms["signup_form"]["last_name"].value;
-			    var email = document.forms["signup_form"]["email"].value;
-			    var un = document.forms["signup_form"]["username"].value;
-			    var p1 = document.forms["signup_form"]["password1"].value;
-			    var p2 = document.forms["signup_form"]["password2"].value;
-			    var ph = document.forms["signup_form"].getElementsById("phone_no").value;
-			    var address = document.forms["signup_form"]["address"].value;
+
+			    var fn = document.getElementsById("first_name").value;
+			    var ln = document..getElementsById("last_name").value;
+			    var email = document..getElementsById("email").value;
+			    var un = document.getElementsById("username").value;
+			    var p1 = document.getElementsById("password1").value;
+			    var p2 = document.getElementsById("password2").value;
+			    var ph = document.getElementsById("phone_no").value;
+			    var address = document.getElementsById("address").value;
 
 			    var name = /^[a-zA-Z ]+$/;
 			    var emailExp = /^[w-.+]+@[a-zA-Z0-9.-]+.[a-zA-z0-9]{2,4}$/;
@@ -199,7 +203,7 @@
 			        return false;
 			    }
 
-			    if(! ph.match(emailExp)){
+			    if(! ph.match(phoneExp)){
 			    	alert("Phone no should be in proper format.");
 			        return false;
 			    }
