@@ -1,10 +1,16 @@
 {% extends error_message|yesno:"garments/base_visitor.html,garments/base.html" %}
 
 {% load static %}
+
 {% block title %} Billing: DGarments {% endblock %}
 
 
+{% block head %}  
+<script src= "https://www.payumoney.com/Api/REST/op/buttonScript" async="true" > </script>
 
+
+
+{% endblock %}
 
 {% block style %} 
 	table {
@@ -184,7 +190,7 @@
 				<div style='text-align:center;'>
 					<h4><u>Delivery Details</u></h4>
 				</div>
-				<form action="{% url 'garments:place_order' %}" method='post' >
+				<form action="{% url 'garments:place_order' total %}" method='post' >
 				{% csrf_token %}
 				<div class='container'>
 					<br>
@@ -197,9 +203,14 @@
 						<div class="col-sm-10">
 							<input class="form-control" name='address' value='{{ user_address }}' placeholder='write the full address where you want to receive the order'>
 						</div>
+
 						<div style='text-align:center;'>
 							<input type='submit' class='btn btn-primary' value='Confirm Order' style='margin-top: 20px;'>
 						</div>
+						
+
+
+
 					</div>
 				</div>
 				</form>

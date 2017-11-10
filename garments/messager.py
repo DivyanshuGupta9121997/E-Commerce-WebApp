@@ -23,7 +23,7 @@ def sendSMS(number,message,username,passwd):
     try:
         usock =opener.open(url, data)
     except IOError:
-        print "Error while sending sms"
+        # print "Error while sending sms"
         return False
         #print "error"
         #return()
@@ -35,9 +35,9 @@ def sendSMS(number,message,username,passwd):
     try:
         sms_sent_page = opener.open(send_sms_url,send_sms_data)
     except IOError:
-        print "Error while sending SMS"
+        # print "Error while sending SMS"
         return False
-    print 'sent message'
+    # print 'sent message'
     return True
 
 

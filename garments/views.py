@@ -9,16 +9,20 @@ from datetime import datetime
 
 from django.core.mail import send_mail
 
-# from cryptography.fernet import Fernet
-# key='pGWp5lViKbMrOTFesoBU78ie2BZzFDVYRkWTcJJJ1vs='
-# cipher_suite = Fernet(key)
-# cipher_text = cipher_suite.encrypt("A really secret message. Not for prying eyes.")
-# plain_text = cipher_suite.decrypt(cipher_text)
+from django.core.mail import EmailMessage
+from django.template.loader import render_to_string
+# from . import messager
+from django.contrib.sites.shortcuts import get_current_site
+# # from cryptography.fernet import Fernet
+# # key='pGWp5lViKbMrOTFesoBU78ie2BZzFDVYRkWTcJJJ1vs='
+# # cipher_suite = Fernet(key)
+# # cipher_text = cipher_suite.encrypt("A really secret message. Not for prying eyes.")
+# # plain_text = cipher_suite.decrypt(cipher_text)
 
-import hashlib
-# p='vishal'.encode('utf-8')
-salt='9876abcd'.encode('utf-8')
-# var2 =  hashlib.sha256(p+salt).hexdigest()
+# import hashlib
+# # p='vishal'.encode('utf-8')
+# salt='9876abcd'.encode('utf-8')
+# # var2 =  hashlib.sha256(p+salt).hexdigest()
 
 
 # Views Utils
@@ -35,13 +39,15 @@ def write_file(filename,s):
     with open(filename, 'wb') as f:
         f.write(s)
 
+def transaction_status(request):
+    pass
+
 
 # Views Utils --- User
 #----------------------------------------------------- Authentication -----------------------------------------------------
 def authenticate(username, password, is_admin):
-    p = password.encode('utf-8')
     with connection.cursor() as cursor:
-        cursor.execute("SELECT * from Customer where username = '{}' AND password = '{}' AND is_admin = {};".format(username, hashlib.sha256(p+salt).hexdigest() , is_admin))
+        cursor.execute("SELECT * from Customer where username = '{}' AND password = MD5('{}') AND is_admin = {} AND is_activated='Y';".format(username, password, is_admin))
         result = dictfetchall(cursor)
     if len(result)>0:
         return result[0]
@@ -75,7 +81,7 @@ def is_authenticated_as_admin(request):
 
 def get_best_deals(request):
     with connection.cursor() as cursor:
-        cursor.execute('SELECT * FROM ItemCategory ORDER BY discount/mrp DESC LIMIT 7;')
+        cursor.execute('SELECT * FROM ItemCategory ORDER BY discount/mrp DESC LIMIT 10;')
         result = dictfetchall(cursor)
     return result
 
@@ -86,7 +92,8 @@ def index(request):
         user_id = request.session['id']
         cart_items = get_cart_items(user_id)
         for item in best_deals:
-            write_file('./garments/static/garments/images/img-{}.jpg'.format(item['id']) ,  item['photo'])
+            if item['photo'] is not None:
+                write_file('./garments/static/garments/images/img-{}.jpg'.format(item['id']) ,  item['photo'])
         if is_authenticated_as_admin(request):
             return render(request, 'garments/index.html', {'admin':'True','cart_items':cart_items, 'first_name': first_name, 'best_deals':best_deals})
         else:
@@ -123,7 +130,7 @@ def login_user(request):
         password = request.POST.get('password')
         is_admin = str(request.POST['is_admin'])
         user = authenticate(username=username, password=password, is_admin=is_admin)
-        # return HttpResponse("SELECT * from Customer where username = '{}' AND password = '{}' AND is_admin = {};".format(username, password, is_admin))
+        # return HttpResponse("SELECT * from Customer where username = '{}' AND password = MD5('{}') AND is_admin = {} AND is_activated='Y';".format(username, password, is_admin))
         if user is not None:
             login(request, user, is_admin)
             user_id = request.session['id']
@@ -133,40 +140,33 @@ def login_user(request):
             else:
                 return render(request, 'garments/index.html',{'admin':'True', 'cart_items':cart_items, 'first_name':user['first_name']})
         else:
-            return render(request, 'garments/index.html', {'error':'True','error_message': 'Invalid username or password' })
+            return render(request, 'garments/index.html', {'error':'True','error_message': 'Invalid username or password. Or Please confirm email if you already signed up.' })
     return render(request, 'garments/index.html', {'error':'True', 'error_message': 'Invalid method' })
 
 def sign_up(request, is_modify=None):
     if request.method == "POST":
         username = request.POST["username"]
-        email = request.POST["email"]
+        email_id = request.POST["email"]
         first_name = request.POST["first_name"]
         last_name = request.POST["last_name"]
         password = request.POST["password1"]
         address = request.POST["address"]
         phone_no = request.POST["phone_no"]
         is_admin = 0
-        p = password.encode('utf-8')
         try:
             with connection.cursor() as cursor:
                 if is_modify is None:
-                   cursor.execute("INSERT INTO Customer (username, email, password, address, first_name, last_name, phone_no, is_admin) VALUES ('{}','{}','{}','{}','{}','{}',{},{})".format(username, email, hashlib.sha256(p+salt).hexdigest(), address, first_name, last_name, phone_no, is_admin))
+                    cursor.execute("INSERT INTO Customer (username, email, password, address, first_name, last_name, phone_no, is_admin, is_activated) VALUES ('{}','{}',MD5('{}'),'{}','{}','{}',{},{},'Y');".format(username, email_id, password, address, first_name, last_name, phone_no, is_admin))
+                    cursor.execute("SELECT MD5('{}')".format(username))
+                    r = cursor.fetchall()
                 else:
-                    cursor.execute("UPDATE Customer SET username='{}', email='{}', password='{}', address='{}', first_name='{}', last_name='{}', phone_no={};".format(username, email, hashlib.sha256(p+salt).hexdigest(), address, first_name, last_name, phone_no))
-                user = authenticate(username=username, password=password, is_admin=is_admin)
-                login(request, user, is_admin)
-                user_id = request.session['id']
-                user_email = request.session['email']
-                username = request.session['username']
-                cart_items = get_cart_items(user_id)
-                # subj = 'SignUP Confirmation for Dhakad Garments'
-                # html_message = '<a href="#">Follow this link to confirm your registration.</a><br>Thank you for registering to our site.'.format(cipher_suite.encrypt(b"{}".format(username)))
-                # message = 'Dear {},\nPlease go to the following link to confirm your account:\n'.format(username)
-                # admin_email = 'dhakad.garments.17@gmail.com'
-                # send_mail(subj,message,admin_email,user_email,auth_user=admin_email,auth_password='dhakad17' ,fail_silently=False, html_message=html_message)
-                return render(request, 'garments/index.html',{'cart_items':cart_items, 'first_name':user['first_name']})
+                    cursor.execute("UPDATE Customer SET username='{}', email='{}', password=MD5('{}'), address='{}', first_name='{}', last_name='{}', phone_no={};".format(username, email, p, address, first_name, last_name, phone_no))
         except IntegrityError:
-            pass
+            return render(request, 'garments/index.html', {'error':'True', 'error_message': 'Username already registered.' })
+        current_site = get_current_site(request)
+        # message = 'Please confirm your account on Dhakadgarments by this link : {}'.format(current_site.domain+'/'+hashed_username)
+        # messager.sendSMS(phone_no,message,'7726029635','dhakad17')
+        return render(request, 'garments/index.html',{'error':'True', 'error_message': 'You need to confirm your account through the link sent to you on your email. You won\'t be able to log in otherwise.' })
     return render(request, 'garments/index.html', {'error':'True', 'error_message': 'Invalid method' })
 
 # Sign Up view
@@ -176,12 +176,17 @@ def sign_up_page(request):
     else:
         return render(request, 'garments/sign_up.html')
 
-def pre_sign_up(request):
-    if request.method == "POST":
-        username = request.POST["username"]
-        email = request.POST["email"]
-        phone_no = request.POST["phone_no"]
-        return sign_up_page(request)
+def post_sign_up(request, hashed_username=None):
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT * FROM Customer WHERE MD5(username)='{}';".format(hashed_username))
+        r = dictfetchall(cursor)
+        if len(r)==0:
+            return render(request, 'garments/index.html', {'error':'True', 'error_message': 'Invalid method' })
+        else:
+            cursor.execute("UPDATE Customer SET is_activated = 'Y' WHERE MD5(username)='{}';".format(hashed_username))
+            cursor.execute("SELECT * FROM Customer WHERE MD5(username)='{}';".format(hashed_username))
+            user = dictfetchall(cursor)[0]
+            login(request, user, 0)
     return render(request, 'garments/index.html', {'error':'True', 'error_message': 'Invalid method' })
 
 #----------------------------------------------------- //Authentication -----------------------------------------------------
@@ -584,6 +589,9 @@ def items(request, is_search = None):
         search_string, item_categories = search_items(request)
     else:
         display_brand_string, display_category_string, price_range, item_categories = filter_items(request)
+    for item in item_categories:
+        if item['photo'] is not None:
+            write_file('./garments/static/garments/images/img-{}.jpg'.format(item['id']) ,  item['photo'])
     with connection.cursor() as cursor:
         cursor.execute('SELECT DISTINCT(brand) FROM ItemCategory;')
         brands = [i['brand'] for i in dictfetchall(cursor)]
@@ -693,6 +701,8 @@ def item_detail(request,item_category_id):
             return render(request, 'garments/cart.html', {'error':'True','error_message': 'Trying to access a non existing URL.',})
         else:
             item = r[0]
+            if item['photo'] is not None:
+                write_file('./garments/static/garments/images/img-{}.jpg'.format(item['id']) ,  item['photo'])
             final_price = float(item['mrp'])-float(item['discount'])
             feedbacks = get_feedbacks_for_item_category(request, item_category_id)
             if is_authenticated(request):
@@ -836,7 +846,7 @@ def billing(request):
         return render(request, 'garments/billing.html', {'error_message': 'You need to Log In to be able to see your bills.'})
 
 
-def place_order(request):# Proceed to pay
+def place_order(request, amount):# Proceed to pay
     if request.method == "POST":
         if is_authenticated(request):
             user_id = request.session['id']
@@ -874,7 +884,10 @@ def place_order(request):# Proceed to pay
                     else:
                         return render(request, 'garments/billing.html', {'error_message': 'Seems like somebody else ordered the item you wish to order.'})
                     cursor.execute("COMMIT;")
-                    return None
+                    first_name = request.session['first_name']
+                    cart_items = get_cart_items(user_id)
+                    cart_remark = request.session['cart_remarks']
+                    return render(request, 'garments/transaction.html',{'Amount':amount, 'OrderID':order_id, 'first_name':first_name, 'cart_items':cart_items } )
                 except IntegrityError:
                     cursor.execute("ROLLBACK;")
                     return None
@@ -882,6 +895,9 @@ def place_order(request):# Proceed to pay
             return render(request, 'garments/index.html', {'error':'True', 'error_message': 'You can not access a bill which does not belong to you.' })
     else:
         return render(request, 'garments/index.html', {'error':'True', 'error_message': 'An error occured. Please try again later.'})
+
+
+
 
 #----------------------------------------------------- //BILLING -----------------------------------------------------
 
@@ -898,7 +914,7 @@ def insert_item(request):
             cost_price_pi = request.POST['cost_price_pi']
             mrp = request.POST['mrp']
             discount = request.POST['discount']
-            target_people_group = request.POST['target_people_group']
+            target_people_group = request.POST['target_people_group'].lower()
             photo = request.FILES['photo'].read()
             with connection.cursor() as cursor:
                 cursor.execute("INSERT INTO ItemCategory (type_of_item, brand, size, quantity, cost_price_pi, mrp, discount, target_people_group, photo) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)",(type_of_item, brand, size, quantity, cost_price_pi, mrp, discount, target_people_group, photo))

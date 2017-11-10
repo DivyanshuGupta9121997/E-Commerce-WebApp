@@ -80,7 +80,7 @@
 
 						{% if item.photo %}
 						<div style='text-align:center;'>
-							<img class="img-fluid" style='max-width: 100%; height: auto;' src="/static/garments/images/img-{{ item.id }}.jpg">
+							<img class="img-fluid" style='max-width: 100%; height: auto;' src="{% static 'garments/images' %}/img-{{ item.id }}.jpg">
 						</div>						
 						{% else %}
 							<img class="img-fluid" style='max-width: 100%; height: auto;' src="{% static 'garments/images/default.jpg' %}">

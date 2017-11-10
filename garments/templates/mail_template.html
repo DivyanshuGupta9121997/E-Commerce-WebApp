@@ -1,0 +1,9 @@
+<html>
+    <head>
+    </head>
+    <body>
+    <p>Hi {{ name }}, <br></p>
+    Please click the following link to confirm your account to DhakadGarments :
+    <a href='{% url "garments:post_sign_up" %}/{{ hashed_username }}'>Link</a>
+    </body>
+</html>

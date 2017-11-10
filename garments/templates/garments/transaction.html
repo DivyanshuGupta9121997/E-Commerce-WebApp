@@ -1,0 +1,158 @@
+{% extends error_message|yesno:"garments/base_visitor.html,garments/base.html" %}
+
+{% load static %}
+
+{% block title %} Billing: DGarments {% endblock %}
+
+
+{% block head %}  
+<script src= "https://www.payumoney.com/Api/REST/op/buttonScript" async="true" > </script>
+
+<script>
+	function myfunction(Amount, OrderID,ProductInfo){
+		window.PUM.setData(Amount, OrderID,ProductInfo);
+		window.PUM.pay();
+	};
+</script>
+
+{% endblock %}
+
+{% block style %} 
+	table {
+	    border-collapse: collapse;
+	    width: 100%;
+	}
+
+	th, td {
+	    text-align: left;
+	    padding: 8px;
+	}
+	th {
+	    background-color: rgb(0,0,0);
+	    color: white;
+	}
+	tr:nth-child(even){background-color: #f2f2f2}
+
+	.alert {
+	    padding: 20px;
+	    background-color: #f44336;
+	    color: white;
+	    opacity: 1;
+	    transition: opacity 0.6s;
+	    margin-bottom: 15px;
+	}
+
+	.closebtn {
+	    margin-left: 15px;
+	    color: white;
+	    font-weight: bold;
+	    float: right;
+	    font-size: 22px;
+	    line-height: 20px;
+	    cursor: pointer;
+	    transition: 0.3s;
+	}
+
+	.closebtn:hover {
+	    color: black;
+	}
+{% endblock %}
+
+
+
+
+
+{% block SecHeader %} 
+	<div class='jumbotron header' style='color:white; background-color: #000000;border: 0;margin: 0;padding: 1% 5% 1% 5%;'>
+		<!-- <div class=""> -->
+		<img alt = 'Happy shopping' src='{% static "garments/images/h_shopping.jpeg" %}' width=90 height=90 style='float:left;'>
+		<h2>&nbsp&nbspSee you soon</h2>
+		<small>&nbsp&nbsp&nbsp&nbspPlease check the bill and proceed to pay.</small>
+		<!-- </div> -->
+	</div>
+{% endblock %}
+
+
+
+
+<!-- header -->
+{% block Name %} {{ first_name }} {% endblock %}
+
+
+{% block cart_descriptor %}
+[
+	{% if cart_items %}
+		{{ cart_items|length }} 
+	{% else %}
+		0
+	{% endif %}
+]
+{% endblock %}
+
+
+{% block nav_options %}
+	{% if admin == "True" %}
+		<li><a href="{% url 'garments:admin_home' %}" >Administrator</a></li>
+	{% endif %}
+{% endblock %}
+<!-- //header -->
+
+
+
+
+{% block body %} 
+
+{% if error_message %}
+<div class="alert">
+  <span class="closebtn">&times;</span>  
+  <strong>Error!</strong> {{ error_message }}
+</div>
+
+<script>
+	var close = document.getElementsByClassName("closebtn");
+	var i;
+
+	for (i = 0; i < close.length; i++) {
+	    close[i].onclick = function(){
+	        var div = this.parentElement;
+	        div.style.opacity = "0";
+	        setTimeout(function(){ div.style.display = "none"; }, 600);
+	    }
+	}
+</script>
+{% else %}
+	<div class='row'>
+		<div class="col-md-1"> </div>
+		<div class="col-md-10">
+			<div class="thumbnail"  style='margin-top:1%;margin-bottom:5%;padding:5%;box-shadow: 0 0 1px blue;width:103%;'>
+				<div style='text-align:center;'>
+					<h2 style='color:rgb(0,100,180);'>Make Transaction</h2><br>
+					<h4><u>Pay through Pay u Money</u></h4>
+					Amount : {{ Amount }} Rs.
+					Order_Id : {{ OrderID }}
+				</div>
+
+				<span class='pm-button' id='A795BA35B986FB77B6A79FB0B9E1173E' onclick="myfunction({{ Amount }}, {{ OrderID }},{{ ProductInfo }});">
+				  <span class="state active">
+				    <input type="image" src="https://file.payumoney.com/images/payby_payumoney/new_buttons/21.png" width="131" height="37">
+				  </span>
+				  <span class="state clicked" style="display:none" >
+				    <input type="image" src="https://file.payumoney.com/images/payby_payumoney/new_buttons/submitted/21.png" width="131" height="37">
+				  </span>
+				</span>
+
+<!-- window.PUM.setData(Amount, OrderID,ProductInfo); -->
+
+
+					</div>
+				</div>
+				</form>
+			</div>
+		</div>
+		<div class="col-md-1"> </div>
+
+	</div>
+{% endif %}
+{% endblock %}
+
+
